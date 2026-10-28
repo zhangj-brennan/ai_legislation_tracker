@@ -86,7 +86,6 @@ h1 {
   font-size: 13px;
 }
 .people-field .code-label { margin: 0; white-space: nowrap; }
-.people.state { width: min(200px, 100%); }
 .sort-field { margin-left: auto; }
 .people.sort { width: auto; }
 select.people {
@@ -278,10 +277,6 @@ td.codes .tag {
   margin: 0 0 4px;
   white-space: normal;
 }
-td.codes .code {
-  font-family: "Benton", Helvetica, Arial, sans-serif;
-  color: var(--black);
-}
 .code-group + .code-group { margin-top: 8px; }
 .code-label {
   font-family: "BentonStrong", Helvetica, Arial, sans-serif;
@@ -292,6 +287,7 @@ td.codes .code {
 }
 
 details.cosponsors { margin-top: 6px; }
+mark { background: var(--yellow); color: inherit; padding: 0; }
 td.sponsor .committee { margin-top: 8px; }
 details summary { cursor: pointer; white-space: nowrap; }
 details ul {
@@ -362,21 +358,6 @@ html.scroll-locked body { overflow: hidden; }
 
   <div class="filter-panel">
   <div class="filter-panel-inner">
-  <div class="controls">
-    <label class="people-field">
-      <span class="code-label">Sponsors / Co-sponsors</span>
-      <select class="people">
-        <option value="">All sponsors and co-sponsors</option>
-      </select>
-    </label>
-    <label class="people-field">
-      <span class="code-label">Sponsors / Co-sponsors States</span>
-      <select class="people state">
-        <option value="">All states</option>
-      </select>
-    </label>
-  </div>
-
   <div class="filters">
     <div class="filter-list"></div>
     <button class="clear-btn" type="button" hidden>Clear filters</button>
@@ -424,25 +405,25 @@ const COLUMNS = [
 ];
 
 const CODE_LABELS = {
-  R1: "Catastrophic risks",
-  R2: "Social and economic harms",
-  R3: "Risks and harms arising from the government’s use of AI",
-  R4: "No risk specified",
-  RG1: "Voluntary standards",
-  RG2: "Mandatory testing",
-  RG3: "Third-party audits",
-  RG4: "AI shutdown or “kill switch” requirements",
-  RG5: "Restricting AI development",
-  RG6: "Restricting AI deployment",
+  R1: "Catastrophic Risks",
+  R2: "Socioeconomic Harms",
+  R3: "Government AI Risks",
+  R4: "No Risk Specified",
+  RG1: "Voluntary Standards",
+  RG2: "Mandatory Testing",
+  RG3: "Third-Party Audits",
+  RG4: "Shutdown or “Kill Switch”",
+  RG5: "Restricting AI Development",
+  RG6: "Restricting AI Deployment",
   RG7: "Transparency",
   RG8: "Liability",
-  RG9a: "Preemption",
-  RG9b: "Anti-preemption",
+  RG9a: "Pre-Emption",
+  RG9b: "Anti-Pre-Emption",
   RG9c: "Deregulation",
   A1: "Department of Commerce",
-  A2: "Department of Artificial Intelligence (new agency)",
+  A2: "Department of Artificial Intelligence (New Agency)",
   A3: "Department of Justice",
-  A4: "Other federal agencies",
+  A4: "Other Federal Agencies",
   A5: "White House"
 };
 
@@ -470,28 +451,7 @@ const thead = document.querySelector("thead tr");
 const tbody = document.querySelector("tbody");
 const search = document.querySelector(".search");
 const count = document.querySelector(".count");
-const people = document.querySelector(".people:not(.state)");
-const stateSelect = document.querySelector(".state");
 const sortSelect = document.querySelector(".sort");
-
-const STATE_NAMES = {
-  AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California", CO: "Colorado",
-  CT: "Connecticut", DE: "Delaware", FL: "Florida", GA: "Georgia", HI: "Hawaii", ID: "Idaho",
-  IL: "Illinois", IN: "Indiana", IA: "Iowa", KS: "Kansas", KY: "Kentucky", LA: "Louisiana",
-  ME: "Maine", MD: "Maryland", MA: "Massachusetts", MI: "Michigan", MN: "Minnesota", MS: "Mississippi",
-  MO: "Missouri", MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey",
-  NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota", OH: "Ohio", OK: "Oklahoma",
-  OR: "Oregon", PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina", SD: "South Dakota",
-  TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont", VA: "Virginia", WA: "Washington",
-  WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming", DC: "District of Columbia", PR: "Puerto Rico",
-  GU: "Guam", VI: "U.S. Virgin Islands", AS: "American Samoa", MP: "Northern Mariana Islands"
-};
-
-// "Rep. Lieu, Ted [D-CA-36]" -> "CA"
-function personState(p) {
-  const m = p.match(/\[[^\]-]+-([A-Z]{2})/);
-  return m ? m[1] : null;
-}
 const filterList = document.querySelector(".filter-list");
 const clearBtn = document.querySelector(".clear-btn");
 
@@ -542,7 +502,7 @@ function renderCell(col, row) {
       return CODE_GROUPS.map(g => {
         const list = codes(row[g.key] || "");
         if (!list.length) return "";
-        const tags = list.map(c => `<span class="tag"><span class="code">${esc(normCode(c))}</span> ${esc(codeLabel(c))}</span>`).join("");
+        const tags = list.map(c => `<span class="tag">${esc(codeLabel(c))}</span>`).join("");
         return `<div class="code-group"><div class="code-label">${g.label}</div>${tags}</div>`;
       }).join("");
     case "Bill summary": {
@@ -560,7 +520,7 @@ function renderHead() {
 
 // Counts reflect every other active filter; a group's own selections are left out so more can be added (OR)
 function renderFilters() {
-  const base = rows.filter(r => matchesSearch(r) && matchesDropdowns(r));
+  const base = rows.filter(matchesSearch);
   filterList.innerHTML = CODE_GROUPS.map(g => {
     const pool = base.filter(r => matchesCodes(r, g.key));
     const buttons = Object.keys(CODE_LABELS).filter(c => g.match.test(c)).map(c => {
@@ -570,26 +530,7 @@ function renderFilters() {
     }).join("");
     return `<div class="filter-group"><div class="code-label">${g.label}</div><div class="filter-buttons">${buttons}</div></div>`;
   }).join("");
-  clearBtn.hidden = !people.value && !stateSelect.value && !CODE_GROUPS.some(g => active[g.key].size);
-}
-
-// Sponsors and co-sponsors, alphabetical, with how many bills each is on
-function renderPeople() {
-  const counts = new Map();
-  rows.forEach(r => r._people.forEach(p => counts.set(p, (counts.get(p) || 0) + 1)));
-  const names = [...counts.keys()].sort((a, b) => a.replace(/^\w+\. /, "").localeCompare(b.replace(/^\w+\. /, "")));
-  people.innerHTML = `<option value="">All sponsors and co-sponsors (${names.length})</option>` +
-    names.map(p => `<option value="${esc(p)}">${esc(p)} (${counts.get(p)})</option>`).join("");
-}
-
-// States of sponsors and co-sponsors, with how many bills each appears on
-function renderStates() {
-  const counts = new Map();
-  rows.forEach(r => r._states.forEach(s => counts.set(s, (counts.get(s) || 0) + 1)));
-  const name = s => STATE_NAMES[s] || s;
-  const states = [...counts.keys()].sort((a, b) => name(a).localeCompare(name(b)));
-  stateSelect.innerHTML = `<option value="">All states (${states.length})</option>` +
-    states.map(s => `<option value="${esc(s)}">${esc(name(s))} (${counts.get(s)})</option>`).join("");
+  clearBtn.hidden = !CODE_GROUPS.some(g => active[g.key].size);
 }
 
 const SEARCH_KEYS = [...COLUMNS.map(c => c.key), "Co-sponsors", "Committee", "Regulation Type(s)", "Authority", "Date introduced", "_codeLabels"];
@@ -599,19 +540,13 @@ function matchesSearch(r) {
   return !q || SEARCH_KEYS.some(k => (r[k] || "").toLowerCase().includes(q));
 }
 
-function matchesDropdowns(r) {
-  if (people.value && !r._people.has(people.value)) return false;
-  if (stateSelect.value && !r._states.has(stateSelect.value)) return false;
-  return true;
-}
-
 // OR within a group, AND across groups; skipGroup leaves one group out (for its own button counts)
 function matchesCodes(r, skipGroup) {
   return CODE_GROUPS.every(g => g.key === skipGroup || !active[g.key].size || [...active[g.key]].some(c => r._codes[g.key].has(c)));
 }
 
 function render() {
-  let list = rows.filter(r => matchesSearch(r) && matchesDropdowns(r) && matchesCodes(r));
+  let list = rows.filter(r => matchesSearch(r) && matchesCodes(r));
   renderFilters();
   // ISO dates sort correctly as strings; bills without a date (e.g. "NOT ON CONGRESS.GOV YET") always go last
   const dir = sortSelect.value === "asc" ? 1 : -1;
@@ -626,6 +561,34 @@ function render() {
     ? list.map(r => `<tr>${COLUMNS.map(c => `<td class="${c.cls}">${renderCell(c, r)}</td>`).join("")}</tr>`).join("")
     : `<tr><td class="empty" colspan="${COLUMNS.length}">No bills match your search and filters.</td></tr>`;
   renderHead();
+  highlight(search.value.trim());
+}
+
+// Wrap each case-insensitive match of the search text in the table in <mark>,
+// and open any co-sponsor lists that contain one
+function highlight(q) {
+  if (!q) return;
+  const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+  const walker = document.createTreeWalker(tbody, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  const lower = q.toLowerCase();
+  while (walker.nextNode()) if (walker.currentNode.nodeValue.toLowerCase().includes(lower)) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    const frag = document.createDocumentFragment();
+    let last = 0;
+    node.nodeValue.replace(re, (m, i) => {
+      frag.append(node.nodeValue.slice(last, i));
+      const mark = document.createElement("mark");
+      mark.textContent = m;
+      frag.append(mark);
+      last = i + m.length;
+    });
+    frag.append(node.nodeValue.slice(last));
+    node.replaceWith(frag);
+  });
+  tbody.querySelectorAll("details.cosponsors").forEach(d => {
+    if (d.querySelector("ul mark")) d.open = true;
+  });
 }
 
 search.addEventListener("input", render);
@@ -639,7 +602,7 @@ const wide = window.matchMedia("(min-width: 641px)");
 function setFiltersOpen(open) {
   filterSticky.classList.toggle("collapsed", !open);
   filterToggle.setAttribute("aria-expanded", open);
-  const n = (people.value ? 1 : 0) + (stateSelect.value ? 1 : 0) + (search.value.trim() ? 1 : 0) +
+  const n = (search.value.trim() ? 1 : 0) +
     CODE_GROUPS.reduce((sum, g) => sum + active[g.key].size, 0);
   filterToggle.textContent = open ? "Hide filters" : n ? `Show filters (${n})` : "Show filters";
 }
@@ -690,10 +653,6 @@ window.addEventListener("scroll", () => {
   lastY = y;
 }, { passive: true });
 
-[people, stateSelect].forEach(sel => sel.addEventListener("change", () => {
-  render();
-}));
-
 filterList.addEventListener("click", e => {
   const btn = e.target.closest(".filter-btn");
   if (!btn) return;
@@ -706,8 +665,6 @@ filterList.addEventListener("click", e => {
 
 clearBtn.addEventListener("click", () => {
   CODE_GROUPS.forEach(g => active[g.key].clear());
-  people.value = "";
-  stateSelect.value = "";
   render();
 });
 
@@ -724,12 +681,8 @@ Papa.parse(CSV_FILE, {
         .map(k => r[k].trim());
       const codeLabels = CODE_GROUPS.flatMap(g => codes(r[g.key] || "").map(codeLabel)).join(" ");
       const codeSets = Object.fromEntries(CODE_GROUPS.map(g => [g.key, new Set(codes(r[g.key] || "").map(normCode))]));
-      const peopleSet = new Set([r.Sponsor || "", ...(r["Co-sponsors"] || "").split("\n")].map(p => p.trim()).filter(Boolean));
-      const stateSet = new Set([...peopleSet].map(personState).filter(Boolean));
-      return { ...r, _extraLinks: extra, _codeLabels: codeLabels, _codes: codeSets, _people: peopleSet, _states: stateSet };
+      return { ...r, _extraLinks: extra, _codeLabels: codeLabels, _codes: codeSets };
     });
-    renderPeople();
-    renderStates();
     render();
   },
   error: () => {
