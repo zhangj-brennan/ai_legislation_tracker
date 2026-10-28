@@ -87,6 +87,8 @@ h1 {
 }
 .people-field .code-label { margin: 0; white-space: nowrap; }
 .people.state { width: min(200px, 100%); }
+.sort-field { margin-left: auto; }
+.people.sort { width: auto; }
 select.people {
   -webkit-appearance: none;
   appearance: none;
@@ -164,7 +166,8 @@ select.people {
 .filter-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px 12px;
   padding-bottom: 8px;
   background: var(--white);
 }
@@ -197,7 +200,7 @@ select.people {
 
 .table-scroll {
   overflow-x: auto;
-  border-top: 2px solid var(--black);
+  border-top: 1px solid var(--black);
 }
 
 table {
@@ -220,14 +223,9 @@ th {
   text-transform: uppercase;
   font-size: 9px;
   white-space: nowrap;
-  cursor: pointer;
-  user-select: none;
-  position: sticky;
-  top: 0;
   background: var(--white);
-  border-bottom: 2px solid var(--black);
+  border-bottom: 1px solid var(--black);
 }
-th .arrow { display: inline-block; width: 1em; font-size: 9px; }
 
 td.title { font-family: "BentonMedium", Helvetica, Arial, sans-serif; min-width: 140px; }
 td.title { font-size: 15px; line-height: 1.3; }
@@ -358,6 +356,13 @@ details ul {
   <div class="filter-bar">
     <button class="filter-toggle" type="button" aria-expanded="true">Hide filters</button>
     <div class="count"></div>
+    <label class="people-field sort-field">
+      <span class="code-label">Sort by date</span>
+      <select class="people sort">
+        <option value="desc">Descending</option>
+        <option value="asc">Ascending</option>
+      </select>
+    </label>
   </div>
   </div>
   <div class="table-scroll">
@@ -419,8 +424,6 @@ const CODE_GROUPS = [
 ];
 
 let rows = [];
-let sortKey = null;
-let sortDir = 1;
 
 // Selected codes per group: OR within a group, AND across groups
 const active = Object.fromEntries(CODE_GROUPS.map(g => [g.key, new Set()]));
@@ -431,6 +434,7 @@ const search = document.querySelector(".search");
 const count = document.querySelector(".count");
 const people = document.querySelector(".people:not(.state)");
 const stateSelect = document.querySelector(".state");
+const sortSelect = document.querySelector(".sort");
 
 const STATE_NAMES = {
   AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California", CO: "Colorado",
@@ -509,10 +513,7 @@ function renderCell(col, row) {
 }
 
 function renderHead() {
-  thead.innerHTML = COLUMNS.map(c => {
-    const arrow = sortKey === c.key ? (sortDir === 1 ? "▲" : "▼") : "";
-    return `<th class="${c.cls}" data-key="${esc(c.key)}">${esc(c.label)} <span class="arrow">${arrow}</span></th>`;
-  }).join("");
+  thead.innerHTML = COLUMNS.map(c => `<th class="${c.cls}">${esc(c.label)}</th>`).join("");
 }
 
 function renderFilters() {
@@ -555,9 +556,14 @@ function matchesFilters(r) {
 function render() {
   const q = search.value.trim().toLowerCase();
   let list = rows.filter(r => matchesFilters(r) && (!q || [...COLUMNS.map(c => c.key), "Co-sponsors", "Committee", "Regulation Type(s)", "Authority", "Date introduced", "_codeLabels"].some(k => (r[k] || "").toLowerCase().includes(q))));
-  if (sortKey) {
-    list = list.slice().sort((a, b) => (a[sortKey] || "").localeCompare(b[sortKey] || "", undefined, { numeric: true }) * sortDir);
-  }
+  // ISO dates sort correctly as strings; bills without a date (e.g. "NOT ON CONGRESS.GOV YET") always go last
+  const dir = sortSelect.value === "asc" ? 1 : -1;
+  const date = r => /^\d{4}-\d{2}-\d{2}$/.test(r["Date introduced"] || "") ? r["Date introduced"] : null;
+  list = list.slice().sort((a, b) => {
+    const da = date(a), db = date(b);
+    if (!da || !db) return (da ? 0 : 1) - (db ? 0 : 1);
+    return da.localeCompare(db) * dir;
+  });
   count.textContent = `Showing ${list.length} of ${rows.length} bills`;
   tbody.innerHTML = list.length
     ? list.map(r => `<tr>${COLUMNS.map(c => `<td class="${c.cls}">${renderCell(c, r)}</td>`).join("")}</tr>`).join("")
@@ -565,16 +571,8 @@ function render() {
   renderHead();
 }
 
-thead.addEventListener("click", e => {
-  const th = e.target.closest("th");
-  if (!th) return;
-  const key = th.dataset.key;
-  if (sortKey === key) sortDir = -sortDir;
-  else { sortKey = key; sortDir = 1; }
-  render();
-});
-
 search.addEventListener("input", render);
+sortSelect.addEventListener("change", render);
 
 // Collapse the filters as soon as the reader scrolls down; the toggle reopens them
 const filterSticky = document.querySelector(".filter-sticky");
