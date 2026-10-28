@@ -67,13 +67,15 @@ h1 {
 .search {
   font: inherit;
   color: var(--black);
-  border: 1px solid var(--black);
+  border: 0;
   border-radius: 0;
   font-size: 13px;
   line-height: 1.45;
   padding: 2px 8px;
   width: min(360px, 100%);
-  background: var(--white);
+  background: #f0f0f0;
+  -webkit-appearance: none;
+  appearance: none;
 }
 .search:focus, .people:focus { outline: 2px solid var(--purple); outline-offset: 1px; }
 
@@ -166,8 +168,22 @@ select.people {
   padding-bottom: 8px;
   background: var(--white);
 }
+/* Title and filters stay pinned to the top; the filters fold away while scrolling */
+.filter-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--white);
+}
+.filter-panel {
+  max-height: 65vh;
+  overflow-y: auto;
+}
+.filter-sticky.collapsed .filter-panel { display: none; }
+.filter-bar { padding: 8px 0; }
+.filter-toggle[aria-expanded="false"] { background: var(--yellow); }
 .filter-toggle {
-  display: none;
+  display: inline-block;
   font: inherit;
   font-size: 13px;
   line-height: 1.45;
@@ -272,22 +288,7 @@ details ul {
 
 /* Mobile: each bill is two rows — bill (with categories), date, sponsor; then the summary */
 @media (max-width: 640px) {
-  /* Title and filters stay pinned to the top; the filters fold away while scrolling */
-  .filter-sticky {
-    position: sticky;
-    top: 0;
-    z-index: 3;
-    background: var(--white);
-  }
-  .filter-panel {
-    max-height: 65vh;
-    overflow-y: auto;
-  }
-  .filter-sticky.collapsed .filter-panel { display: none; }
   .filter-sticky h1 { margin-bottom: 8px; }
-  .filter-bar { padding: 8px 0; }
-  .filter-toggle { display: inline-block; }
-  .filter-toggle[aria-expanded="false"] { background: var(--yellow); }
 
   .table-scroll { overflow: visible; }
   table, tbody { display: block; }
@@ -575,10 +576,9 @@ thead.addEventListener("click", e => {
 
 search.addEventListener("input", render);
 
-// Mobile: collapse the filters as soon as the reader scrolls down; the toggle reopens them
+// Collapse the filters as soon as the reader scrolls down; the toggle reopens them
 const filterSticky = document.querySelector(".filter-sticky");
 const filterToggle = document.querySelector(".filter-toggle");
-const mobile = window.matchMedia("(max-width: 640px)");
 
 function setFiltersOpen(open) {
   filterSticky.classList.toggle("collapsed", !open);
@@ -601,7 +601,7 @@ let lastY = window.scrollY;
 window.addEventListener("scroll", () => {
   const y = window.scrollY;
   if (performance.now() < ignoreScrollUntil) { lastY = y; return; }
-  if (mobile.matches && y > lastY && y > 10 && !filterSticky.classList.contains("collapsed")) {
+  if (y > lastY && y > 10 && !filterSticky.classList.contains("collapsed")) {
     setFiltersOpen(false);
   }
   lastY = y;
