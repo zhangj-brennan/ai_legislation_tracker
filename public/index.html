@@ -122,12 +122,11 @@ select.people {
 }
 .filter-group {
   display: grid;
-  grid-template-columns: 90px 1fr;
-  gap: 8px;
+  grid-template-columns: 1fr;
+  gap: 4px;
   align-items: start;
   padding: 6px 0;
 }
-.filter-group .code-label { padding-top: 3px; }
 .filter-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
 .filter-btn {
   font: inherit;
@@ -158,9 +157,6 @@ select.people {
   text-underline-offset: 3px;
 }
 .clear-btn[hidden] { display: none; }
-@media (max-width: 560px) {
-  .filter-group { grid-template-columns: 1fr; gap: 4px; }
-}
 
 .count { font-size: 13px; }
 .filter-bar {
