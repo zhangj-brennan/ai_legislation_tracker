@@ -145,17 +145,16 @@ select.people {
 .filter-btn .n { margin-left: 4px; }
 .clear-btn {
   font: inherit;
-  color: var(--black);
-  background: none;
+  line-height: 1.45;
+  color: var(--white);
+  background: var(--black);
   border: 0;
-  padding: 0;
+  border-radius: 0;
+  padding: 2px 8px;
   margin-top: 6px;
   cursor: pointer;
-  text-decoration: underline;
-  text-decoration-color: var(--purple);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 3px;
 }
+.clear-btn:hover { background: color-mix(in srgb, var(--yellow) 40%, white); color: var(--black); }
 .clear-btn[hidden] { display: none; }
 
 .count { font-size: 13px; }
@@ -515,12 +514,15 @@ function renderHead() {
   thead.innerHTML = COLUMNS.map(c => `<th class="${c.cls}">${esc(c.label)}</th>`).join("");
 }
 
+// Counts reflect every other active filter; a group's own selections are left out so more can be added (OR)
 function renderFilters() {
+  const base = rows.filter(r => matchesSearch(r) && matchesDropdowns(r));
   filterList.innerHTML = CODE_GROUPS.map(g => {
+    const pool = base.filter(r => matchesCodes(r, g.key));
     const buttons = Object.keys(CODE_LABELS).filter(c => g.match.test(c)).map(c => {
-      const n = rows.filter(r => r._codes[g.key].has(c)).length;
       const pressed = active[g.key].has(c);
-      return `<button type="button" class="filter-btn" data-group="${esc(g.key)}" data-code="${esc(c)}" aria-pressed="${pressed}"${n ? "" : " disabled"}>${esc(CODE_LABELS[c])}<span class="n">(${n})</span></button>`;
+      const n = pool.filter(r => r._codes[g.key].has(c)).length;
+      return `<button type="button" class="filter-btn" data-group="${esc(g.key)}" data-code="${esc(c)}" aria-pressed="${pressed}"${n || pressed ? "" : " disabled"}>${esc(CODE_LABELS[c])}<span class="n">(${n})</span></button>`;
     }).join("");
     return `<div class="filter-group"><div class="code-label">${g.label}</div><div class="filter-buttons">${buttons}</div></div>`;
   }).join("");
@@ -546,15 +548,27 @@ function renderStates() {
     states.map(s => `<option value="${esc(s)}">${esc(name(s))} (${counts.get(s)})</option>`).join("");
 }
 
-function matchesFilters(r) {
+const SEARCH_KEYS = [...COLUMNS.map(c => c.key), "Co-sponsors", "Committee", "Regulation Type(s)", "Authority", "Date introduced", "_codeLabels"];
+
+function matchesSearch(r) {
+  const q = search.value.trim().toLowerCase();
+  return !q || SEARCH_KEYS.some(k => (r[k] || "").toLowerCase().includes(q));
+}
+
+function matchesDropdowns(r) {
   if (people.value && !r._people.has(people.value)) return false;
   if (stateSelect.value && !r._states.has(stateSelect.value)) return false;
-  return CODE_GROUPS.every(g => !active[g.key].size || [...active[g.key]].some(c => r._codes[g.key].has(c)));
+  return true;
+}
+
+// OR within a group, AND across groups; skipGroup leaves one group out (for its own button counts)
+function matchesCodes(r, skipGroup) {
+  return CODE_GROUPS.every(g => g.key === skipGroup || !active[g.key].size || [...active[g.key]].some(c => r._codes[g.key].has(c)));
 }
 
 function render() {
-  const q = search.value.trim().toLowerCase();
-  let list = rows.filter(r => matchesFilters(r) && (!q || [...COLUMNS.map(c => c.key), "Co-sponsors", "Committee", "Regulation Type(s)", "Authority", "Date introduced", "_codeLabels"].some(k => (r[k] || "").toLowerCase().includes(q))));
+  let list = rows.filter(r => matchesSearch(r) && matchesDropdowns(r) && matchesCodes(r));
+  renderFilters();
   // ISO dates sort correctly as strings; bills without a date (e.g. "NOT ON CONGRESS.GOV YET") always go last
   const dir = sortSelect.value === "asc" ? 1 : -1;
   const date = r => /^\d{4}-\d{2}-\d{2}$/.test(r["Date introduced"] || "") ? r["Date introduced"] : null;
@@ -615,8 +629,9 @@ window.addEventListener("scroll", () => {
     setFiltersOpen(false);
   }
   lastY = y;
-}, { passive: true });[people, stateSelect].forEach(sel => sel.addEventListener("change", () => {
-  renderFilters();
+}, { passive: true });
+
+[people, stateSelect].forEach(sel => sel.addEventListener("change", () => {
   render();
 }));
 
@@ -627,7 +642,6 @@ filterList.addEventListener("click", e => {
   const code = btn.dataset.code;
   if (set.has(code)) set.delete(code);
   else set.add(code);
-  renderFilters();
   render();
 });
 
@@ -635,7 +649,6 @@ clearBtn.addEventListener("click", () => {
   CODE_GROUPS.forEach(g => active[g.key].clear());
   people.value = "";
   stateSelect.value = "";
-  renderFilters();
   render();
 });
 
@@ -658,7 +671,6 @@ Papa.parse(CSV_FILE, {
     });
     renderPeople();
     renderStates();
-    renderFilters();
     render();
   },
   error: () => {
