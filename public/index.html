@@ -283,6 +283,7 @@ details ul {
 
 
 .empty, .error { padding: 24px 0; }
+.mobile-only { display: none; }
 
 /* Mobile: each bill is two rows — bill (with categories), date, sponsor; then the summary */
 @media (max-width: 640px) {
@@ -292,12 +293,12 @@ details ul {
   table { min-width: 0; }
   tbody tr {
     display: grid;
-    grid-template-columns: minmax(0, 1.4fr) 72px minmax(0, 1fr);
-    column-gap: 12px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 16px;
     grid-template-areas:
-      "title date sponsor"
-      "codes date sponsor"
-      "summary summary summary";
+      "title title"
+      "codes sponsor"
+      "summary summary";
     padding: 12px 0;
     border-bottom: 1px solid var(--black);
   }
@@ -310,9 +311,21 @@ details ul {
   }
   td.title { grid-area: title; }
   td.codes { grid-area: codes; margin-top: 10px; }
-  td.date { grid-area: date; }
-  td.sponsor { grid-area: sponsor; }
+  td.date { display: none; }
+  td.sponsor { grid-area: sponsor; margin-top: 10px; }
   td.summary { grid-area: summary; margin-top: 12px; }
+  .mobile-only { display: block; }
+  .mobile-date { margin-bottom: 8px; }
+  /* No table header on mobile, so the summary gets its own label (same style as .code-label) */
+  td.summary::before {
+    content: "Summary";
+    display: block;
+    font-family: "BentonStrong", Helvetica, Arial, sans-serif;
+    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: 0.02em;
+    margin-bottom: 3px;
+  }
   td.empty, td.error { grid-column: 1 / -1; }
 }
 </style>
@@ -377,7 +390,7 @@ const CSV_FILE = "Frontier AI Bill Tracker 10.28.26 - Frontier.csv";
 
 const COLUMNS = [
   { key: "Title", label: "Bill", cls: "title" },
-  { key: "Date introduced", label: "Introduced", cls: "date" },
+  { key: "Date introduced", label: "Date introduced", cls: "date" },
   { key: "Sponsor", label: "Sponsor / Committee", cls: "sponsor" },
   { key: "Risk(s)", label: "Categories", cls: "codes" },
   { key: "Bill summary", label: "Summary", cls: "summary" }
@@ -492,7 +505,11 @@ function renderCell(col, row) {
       const committee = committees.length
         ? `<div class="committee"><div class="code-label">Committee</div>${committees.map(c => `<div>${esc(c)}</div>`).join("")}</div>`
         : "";
-      return esc(v) + cosponsors + committee;
+      // Mobile only: the date and a label sit at the top of this column (the Introduced column is hidden there)
+      const date = row["Date introduced"]
+        ? `<div class="mobile-only code-label">Date introduced</div><div class="mobile-only mobile-date">${formatDate(row["Date introduced"])}</div>`
+        : "";
+      return date + `<div class="mobile-only code-label">Sponsor / Co-sponsors</div>` + esc(v) + cosponsors + committee;
     }
     case "Risk(s)":
       return CODE_GROUPS.map(g => {
