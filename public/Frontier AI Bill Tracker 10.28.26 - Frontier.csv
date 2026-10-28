@@ -1,0 +1,199 @@
+﻿Date introduced,Title,Link,Sponsor,Co-sponsors,Committee,Bill summary,Risk(s),Regulation Type(s),Authority,
+2025-03-26,CREATE AI Act of 2025 (H.R.2385),https://www.congress.gov/bill/119th-congress/house-bill/2385/text,"Rep. Obernolte, Jay [R-CA-23]","Rep. Beyer, Donald S. [D-VA-8]
+Rep. Matsui, Doris O. [D-CA-7]
+Rep. Fitzpatrick, Brian K. [R-PA-1]
+Rep. Franklin, Scott [R-FL-18]
+Rep. Salinas, Andrea [D-OR-6]
+Rep. McBride, Sarah [D-DE-At Large]
+Rep. Carter, Earl L. ""Buddy"" [R-GA-1]
+Rep. Jacobs, Sara [D-CA-51]
+Rep. McCormick, Richard [R-GA-7]
+Rep. Stevens, Haley M. [D-MI-11]
+Rep. DelBene, Suzan K. [D-WA-1]
+Rep. Bonamici, Suzanne [D-OR-1]
+Rep. Liccardo, Sam T. [D-CA-16]
+Rep. Deluzio, Christopher R. [D-PA-17]
+Rep. Gottheimer, Josh [D-NJ-5]
+Rep. Lieu, Ted [D-CA-36]
+Rep. Mullin, Kevin [D-CA-15]
+Rep. Vindman, Eugene Simon [D-VA-7]
+Rep. Harder, Josh [D-CA-9]
+Rep. Foushee, Valerie P. [D-NC-4]
+Rep. Pettersen, Brittany [D-CO-7]
+Rep. Kean, Thomas H. [R-NJ-7]
+Rep. Dunn, Neal P. [R-FL-2]
+Rep. McDonald Rivet, Kristen [D-MI-8]
+Rep. Levin, Mike [D-CA-49]
+Rep. Vasquez, Gabe [D-NM-2]
+Rep. Gillen, Laura [D-NY-4]	
+Rep. Lee, Susie [D-NV-3]
+Rep. Carbajal, Salud O. [D-CA-24]
+Rep. Min, Dave [D-CA-47]
+Rep. Kim, Young [R-CA-40]
+Rep. Walkinshaw, James R. [D-VA-11]
+Rep. Kiggans, Jennifer A. [R-VA-2]
+Rep. Moulton, Seth [D-MA-6]
+Rep. Carter, Troy A. [D-LA-2]
+Rep. Scholten, Hillary J. [D-MI-3]",,"Creates a National Artificial Intelligence Research Resource that provides computational resources to universities, nonprofits, small businesses and other eligible entities to experiment with AI and support AI testing, benchmarking and evaluations",R4,RG1,A4; A5,
+2025-04-02,Promoting United States Leadership in Standards Act (S.1269),https://www.congress.gov/bill/119th-congress/senate-bill/1269/text,"Sen. Blackburn, Marsha [R-TN]","Sen. Warner, Mark R. [D-VA]","Commerce, Science, and Transportation",Directs NIST to support technical standards setting activities on AI,R4,RG1,A1,
+2025-05-07,TEST AI Act of 2025 (S.1633),https://www.congress.gov/bill/119th-congress/senate-bill/1633/text,"Sen. Luján, Ben Ray [D-NM]","Sen. Blackburn, Marsha [R-TN]
+Sen. Durbin, Richard J. [D-IL]
+Sen. Risch, James E. [R-ID]
+Sen. Welch, Peter [D-VT]","Commerce, Science, and Transportation","Directs NIST, in coordination with DOE, to explore the development of measurement standards for the evaluation of AI systems. Sets up “testbeds” for measurement standards.",R4,RG1,"A1, A4",
+2025-07-31,VET Artificial Intelligence Act (S.2615),https://www.congress.gov/bill/119th-congress/senate-bill/2615/text,"Sen. Hickenlooper, John W. [D-CO]","Sen. Capito, Shelley Moore [R-WV]
+Sen. Slotkin, Elissa [D-MI]
+Sen. Young, Todd [R-IN]","Commerce, Science, and Transportation","Directs NIST to establish voluntary standards for internal and external evaluations of AI systems.
+
+Directs the development of guidance on disclosing the results of AI system evaluations and corrective actions.",R2,"RG1, RG3",A1,
+2025-09-10,SANDBOX Act (S.2750),https://www.congress.gov/bill/119th-congress/senate-bill/2750/text,"Sen. Cruz, Ted [R-TX]",,"Commerce, Science, and Transportation","Establishes a program for persons testing, experimenting or deploying an AI product or service to apply for a waiver of federal regulations or the enforcement of criminal or civil laws. 
+
+Federal agencies will approve or deny application for waiver of regulations or laws within their jurisdiction. The Director of the Office of Science and Technology Policy, which will establish and run the program, has authority to overrule the agency’s decision.","R1, R2",RG9(c),A5,
+2025-09-16,American Artificial Intelligence Leadership and Uniformity Act (H.R.5388),https://www.congress.gov/bill/119th-congress/house-bill/5388/text,"Rep. Baumgartner, Michael [R-WA-5]",,"Science, Space, and Technology; Foreign Affairs; Armed Services; Homeland Security; Oversight and Government Reform; Judiciary; Energy and Commerce; Small Business; Education and Workforce; Financial Services; Veterans' Affairs; Transportation and Infrastructure","Directs the Executive Branch to create a ""National Artificial Intelligence Action Plan."" The plan will include steps to remove barriers to AI innovation, advance AI development, and strengthen AI security and incident reporting. Establishes a five year prohibition on state and local governments enforcing regulations of AI models.",R4,"RG7, RG9(a), RG9(c)",A5,
+2025-09-29,Artificial Intelligence Risk Evaluation Act of 2025 (S.2938),https://www.congress.gov/bill/119th-congress/senate-bill/2938/text,"Sen. Hawley, Josh [R-MO]","Sen. Blumenthal, Richard [D-CT]
+Sen. Blackburn, Marsha [R-TN]","Commerce, Science, and Transportation","Requires AI developers to participate in Advanced Artificial Intelligence Evaluation Program, which will test advanced AI models and make recommendations to the developer and Congress","R1, R2",RG2,A4,
+2025-09-29,AI LEAD Act (S.2937),https://www.congress.gov/bill/119th-congress/senate-bill/2937/text,"Sen. Durbin, Richard J. [D-IL]","Sen. Hawley, Josh [R-MO]
+Sen. Welch, Peter [D-VT]
+Sen. King, Angus S., Jr. [I-ME]	
+Sen. Blackburn, Marsha [R-TN]",Judiciary,"Imposes liability on AI developers and deployers for harm caused by their products to businesses or consumers. Establishes causes of action for negligence, failure to warn, breach of warranty, and defective design. Preempts conflicting state laws, but explicitly preserves state protections on “harm prevention, accountability, and transparency” that are stronger than the Act’s protections.",R2,"RG8, RG9(b)",A3,https://www.judiciary.senate.gov/imo/media/doc/OLL25B47.pdf
+2025-11-19,Advanced Artificial Intelligence Security Readiness Act of 2025 (S.3202),https://www.congress.gov/bill/119th-congress/senate-bill/3202/text,"Sen. Young, Todd [R-IN]","Sen. Kelly, Mark [D-AZ]",Intelligence (Select),Directs the NSA to develop detailed guidance to identify and protect against artificial intelligence supply chain risks.,R1,RG1,A4,
+2025-12-17,States' Right to Regulate AI Act (S.3557),https://www.congress.gov/bill/119th-congress/senate-bill/3557/text,"Sen. Markey, Edward J. [D-MA]","Sen. Van Hollen, Chris [D-MD]
+Sen. Welch, Peter [D-VT]
+Sen. Wyden, Ron [D-OR]
+Sen. Sanders, Bernard [I-VT]
+Sen. Schiff, Adam B. [D-CA]
+Sen. Booker, Cory A. [D-NJ]
+Sen. Luján, Ben Ray [D-NM]
+Sen. Klobuchar, Amy [D-MN]
+Sen. Padilla, Alex [D-CA]
+Sen. Durbin, Richard J. [D-IL]","Commerce, Science, and Transportation","Prohibits the use of federal funds for implementing EO 14365, which directs federal agencies to restrict federal funding to states with AI laws that are inconsistent with executive policy to establish a “minimally burdensome national policy framework for AI.”",R4,RG9(b),A5,
+2026-02-26,Future of Artificial Intelligence Innovation Act of 2026 (S.3592),https://www.congress.gov/bill/119th-congress/senate-bill/3952/text,"Sen. Young, Todd [R-IN]","Sen. Cantwell, Maria [D-WA]
+Sen. Blackburn, Marsha [R-TN]
+Sen. Hickenlooper, John W. [D-CO]","Commerce, Science, and Transportation","Codifies the Center for Artificial Intelligence Standards and Innovation (CAISI), which will be responsible for developing voluntary standards for assessing AI models and supporting testing. 
+
+It also creates prizes for AI development and research and seeks to make public data available for AI training and evaluation.",R1,RG1,A1,
+2026-03-20,GUARDRAILS Act (H.R.8031; see also S.4216),https://www.congress.gov/bill/119th-congress/house-bill/8031/text,"Rep. Beyer, Donald S. [D-VA-8]","Rep. Lieu, Ted [D-CA-36]
+Rep. Matsui, Doris O. [D-CA-7]
+Rep. Jacobs, Sara [D-CA-51]
+Rep. McClain Delaney, April [D-MD-6]
+Rep. Auchincloss, Jake [D-MA-4]
+Rep. Balint, Becca [D-VT-At Large]
+Rep. Barragán, Nanette Diaz [D-CA-44]
+Rep. Bonamici, Suzanne [D-OR-1]
+Rep. Casten, Sean [D-IL-6]
+Rep. Chu, Judy [D-CA-28]
+Rep. Cisneros, Gilbert Ray [D-CA-31]
+Rep. Craig, Angie [D-MN-2]
+Rep. Dexter, Maxine [D-OR-3]
+Rep. Fletcher, Lizzie [D-TX-7]
+Rep. Foster, Bill [D-IL-11]
+Rep. Foushee, Valerie P. [D-NC-4]
+Rep. Friedman, Laura [D-CA-30]
+Rep. Khanna, Ro [D-CA-17]
+Rep. McBride, Sarah [D-DE-At Large]
+Rep. McCollum, Betty [D-MN-4]
+Rep. McGarvey, Morgan [D-KY-3]
+Rep. McGovern, James P. [D-MA-2]
+Rep. Menendez, Robert [D-NJ-8]
+Rep. Morrison, Kelly [D-MN-3]
+Del. Norton, Eleanor Holmes [D-DC-At Large]
+Rep. Quigley, Mike [D-IL-5]
+Rep. Rivas, Luz M. [D-CA-29]
+Rep. Scholten, Hillary J. [D-MI-3]
+Rep. Takano, Mark [D-CA-39]
+Rep. Tlaib, Rashida [D-MI-12]
+Rep. Tonko, Paul [D-NY-20]
+Rep. Watson Coleman, Bonnie [D-NJ-12]
+Rep. Larson, John B. [D-CT-1]	
+Rep. Williams, Nikema [D-GA-5]",Energy and Commerce; Judiciary,"Repeals and prohibits the use of federal funds for implementing EO 14365, which directs federal agencies to restrict federal funding to states with AI laws that are inconsistent with executive policy to establish a “minimally burdensome national policy framework for AI.”",R4,RG9(b),A5,
+2026-03-26,AI Foundation Model Transparency Act of 2026 (H.R.8094),https://www.congress.gov/bill/119th-congress/house-bill/8094/text,"Rep. Beyer, Donald S. [D-VA-8]","Rep. Lawler, Michael [R-NY-17]
+Rep. Jacobs, Sara [D-CA-51]
+Rep. Fitzpatrick, Brian K. [R-PA-1]",Energy and Commerce,"Requires public disclosures of model details, including information on training data.","R1, R2",RG7,A4,
+2026-04-27,American Leadership in AI Act (H.R.8516),https://www.congress.gov/bill/119th-congress/house-bill/8516/text,"Rep. Lieu, Ted [D-CA-36]","Rep. Obernolte, Jay [R-CA-23]
+Rep. Gottheimer, Josh [D-NJ-5]
+Rep. Ross, Deborah K. [D-NC-2]
+Rep. Whitesides, George [D-CA-27]","Science, Space, and Technology; Energy and Commerce; Agriculture; Oversight and Government Reform; Education and Workforce; Judiciary; Ways and Means","NIST will identify opportunities for US participation in international standards-setting on AI; establish voluntary guidance on developing, releasing, and assessing AI systems; and explore development of voluntary AI incident reporting. NIST to also establish minimum requirements for AI systems purchased by most federal agencies. Codifies CAISI, which will be responsible for advancing measurement science on AI safety. 
+
+It also establishes the National Artificial Intelligence Research Resource and prize competitions for AI research and development.","R1, R3","RG1, RG7",A1,
+2026-06-15,Department of Advanced Technology and Artificial Intelligence Act (H.R.9323),https://www.congress.gov/bill/119th-congress/house-bill/9323/text,"Rep. Rivas, Luz M. [D-CA-29]","Rep. Khanna, Ro [D-CA-17]",Oversight and Government Reform,"Establishes a Department of Advanced Technology and Artificial Intelligence to develop safety and oversight standards on federal AI use, and establish incident reporting systems for cybersecurity risks and breach prevention.","R2, R3","RG1, RG7",A2,
+2026-06-18,AI Security and Innovation Act (H.R.9363),https://www.congress.gov/bill/119th-congress/house-bill/9363/text,"Rep. Obernolte, Jay [R-CA-23]","Rep. Foushee, Valerie P. [D-NC-4]
+Rep. Babin, Brian [R-TX-36]
+Rep. Mann, Tracey [R-KS-1]
+Rep. Franklin, Scott [R-FL-18]
+Rep. Trahan, Lori [D-MA-3]	
+Rep. Houchin, Erin [R-IN-9]
+Rep. Crawford, Eric A. ""Rick"" [R-AR-1]","Science, Space, and Technology","Codifies CAISI as a subsidiary of NIST for now, pending further study of how it should be structured. CAISI to establish voluntary agreements with AI developers to conduct model risk evaluations.",R1,RG1,A1,
+2026-06-25,AI Incident Reporting Act (H.R.9477),https://www.congress.gov/bill/119th-congress/house-bill/9477/text,"Rep. Moran, Nathaniel [R-TX-1]","Rep. Whitesides, George [D-CA-27]
+Rep. Jacobs, Sara [D-CA-51]
+Rep. Lieu, Ted [D-CA-36]",Energy and Commerce,"Requires ""covered model developers"" to report AI security incidents, such as attempts to evade oversight or demonstrated capability to accelerate AI model development.",R1,RG7,A1,
+2026-07-21,Secure A.I. Development Act of 2026 (S.5061),https://www.congress.gov/bill/119th-congress/senate-bill/5061/text,"Sen. Warner, Mark R. [D-VA]",,"Commerce, Science, and Transportation","Requires AI developers to provide frontier models to NSA for testing 21 days before release. Testing provides vendors with voluntary security recommendations. Establishes an AI Risk Board within NIST to develop process for performing evaluations of dangerous capabilities, cybersecurity recommendations, and other best practices. 
+
+Creates voluntary AI incident reporting process, with a public database of incidents.",R1,"RG2, RG7","A1, A4",
+2026-07-23,FRONTIER Act (H.R.9925),https://www.congress.gov/bill/119th-congress/house-bill/9925/text,"Rep. Obernolte, Jay [R-CA-23]","Rep. Trahan, Lori [D-MA-3]
+Rep. Houchin, Erin [R-IN-9]
+Rep. Peters, Scott H. [D-CA-50]
+Rep. Franklin, Scott [R-FL-18]
+Rep. Subramanyam, Suhas [D-VA-10]
+Rep. Wilson, Joe [R-SC-2]
+Rep. Vasquez, Gabe [D-NM-2]
+Rep. Malliotakis, Nicole [R-NY-11]
+Rep. Correa, J. Luis [D-CA-46]
+Rep. Gallagher, James [R-CA-1]
+Rep. Quigley, Mike [D-IL-5]","Energy and Commerce; Science, Space, and Technology","Requires large model developers to develop a “frontier AI framework” that discloses publicly how they manage cybersecurity, loss of control and other “catastrophic risks.” Direct a new Under Secretary of AI Security within Commerce to issue “regulations establishing minimum requirements for frontier AI frameworks.” Developers are required to submit to independent audits of compliance with their frameworks. Establishes a licensing regime for independent auditors. 
+
+Establishes an emergency procedure for the Secretary of Commerce to require that a frontier model’s development, deployment, or use be suspended or restricted
+
+It also requires a mechanism for reporting critical safety incidents and information about catastrophic risk to the government. Finally, it requires large frontier developers to register with the government.",R1,"RG3, RG4, RG7",A1,
+2026-07-23,AI Kill Switch Act (H.R.9917),https://www.congress.gov/bill/119th-congress/house-bill/9917/text,"Rep. Lieu, Ted [D-CA-36]","Rep. Moran, Nathaniel [R-TX-1]
+Rep. Subramanyam, Suhas [D-VA-10]
+Rep. Luna, Anna Paulina [R-FL-13]
+Rep. Escobar, Veronica [D-TX-16]
+Rep. Courtney, Joe [D-CT-2]
+Rep. Cohen, Steve [D-TN-9]
+Rep. Sherman, Brad [D-CA-32]
+Rep. Bera, Ami [D-CA-6]
+Rep. Green, Al [D-TX-9]
+Rep. Cisneros, Gilbert Ray [D-CA-31]
+Rep. Quigley, Mike [D-IL-5]
+Rep. Pappas, Chris [D-NH-1]",Homeland Security,"Requires select AI developers to maintain a capability to restrict or shut down their AI systems. Authorizes DHS to issue restriction or shut down orders when it has determined a “covered incident” has occurred, such as loss of control or evasion of monitoring.",R1,RG4,A4,
+2026-07-23,Collaboration on Adversarial Threats and Security Risks Act (H.R.9914; see also S.5105),https://www.congress.gov/bill/119th-congress/house-bill/9914/text,"Rep. Latta, Robert E. [R-OH-5]","Rep. Whitesides, George [D-CA-27]
+Rep. Obernolte, Jay [R-CA-23]
+Rep. Lieu, Ted [D-CA-36]
+Rep. Issa, Darrell [R-CA-48]
+Rep. Moran, Nathaniel [R-TX-1]
+Rep. Harrigan, Pat [R-NC-10]
+Rep. Miller-Meeks, Mariannette [R-IA-1]
+Rep. Trahan, Lori [D-MA-3]
+Rep. Krishnamoorthi, Raja [D-IL-8]
+Rep. Jacobs, Sara [D-CA-51]	
+Rep. Tokuda, Jill N. [D-HI-2]
+Rep. Cline, Ben [R-VA-6]
+Rep. Veasey, Marc A. [D-TX-33]
+Rep. Moulton, Seth [D-MA-6]
+Rep. Hunt, Wesley [R-TX-38]
+Rep. Foster, Bill [D-IL-11]
+Rep. Carter, Earl L. ""Buddy"" [R-GA-1]	
+Rep. Weber, Randy K. Sr. [R-TX-14]
+Rep. Houlahan, Chrissy [D-PA-6]	
+Rep. Correa, J. Luis [D-CA-46]
+Rep. Liccardo, Sam T. [D-CA-16]	
+Rep. Huizenga, Bill [R-MI-4]
+Rep. Crockett, Jasmine [D-TX-30]
+Rep. Sherman, Brad [D-CA-32]
+Rep. McClain Delaney, April [D-MD-6]",Judiciary,"Creates an antitrust exemption for sharing information or agreeing to pause or restrict AI development, testing or deployment if done for the purpose of reducing risks from AI, including the use of AI to assist with developing certain weapons or interfering with critical infrastructure and AI evading the control of its operator.",R1,RG9(c),"A3, A4",
+2026-07-27,AI Threat Output and Monitoring Incident Containment Act (H.R.9965),https://www.congress.gov/bill/119th-congress/house-bill/9965/text,"Rep. Maloy, Celeste [R-UT-2]","Rep. Jacobs, Sara [D-CA-51]
+Rep. Barrett, Tom [R-MI-7]","Science, Space, and Technology","Establishes a program to evaluate the likelihood that AI models can be used to build, obtain, or use a nuclear weapon or will be experience a loss-of-control scenario involving nuclear material. The program will develop recommendations to avoid these scenarios and propose related legislation to Congress. Large AI developers are required to participate in the program.",R1,RG2,A4,
+2026-09-14,Stop Rogue AI Act (H.R.10362),https://www.congress.gov/bill/119th-congress/house-bill/10362/text,"Rep. Gottheimer, Josh [D-NJ-5]","Rep. Lawler, Michael [R-NY-17]
+Rep. Huffman, Jared [D-CA-2]","Science, Space, and Technology; Oversight and Government Reform","NIST, in coordination with Commerce, develops “standards, guidelines, and best practices” around AI agents. Establishes compliance with NIST standards as a condition of federal procurement.",R1,RG1,A1,
+2026-09-16,AI Emergency Button Act (S.5417; see also H.R.10567),https://www.congress.gov/bill/119th-congress/senate-bill/5417/text,"Sen. Kennedy, John [R-LA]",,"Commerce, Science, and Transportation",Requires AI operators and developers to ensure they maintain the capability for a human to shut down their AI system.,R1,RG4,A4,
+2026-09-23,Ban Artificial Superintelligence Act of 2026 (S.5493; see also H.R.10538),https://www.congress.gov/bill/119th-congress/senate-bill/5493/text,"Sen. Sanders, Bernard [I-VT]",,"Commerce, Science, and Transportation","Establishes Department of Artificial Intelligence. Pauses development of “advanced” AI until that department is fully staffed and has promulgated certain rules on AI development, including establish process for approving deployment of “advanced” AI. Prohibits development of AI with “superintelligence precursor characteristics,” such as capacity to “greatly accelerate” AI R&D and “uplift” the design of chemical weapons. Requires that approved AI developers give the newly created Department access to all their systems, processes, and infrastructure.",R1,"RG5, RG7",A2,
+2026-09-24,Reliable Artificial Intelligence Research Act of 2026 (H.R.10594),https://www.congress.gov/bill/119th-congress/house-bill/10594/text,"Rep. Pfluger, August [R-TX-11]","Rep. Harder, Josh [D-CA-9]
+Del. King-Hinds, Kimberlyn [R-MP-At Large]
+Rep. Downing, Troy [R-MT-2]
+Rep. Webster, Daniel [R-FL-11]
+Rep. Newhouse, Dan [R-WA-4]
+Rep. Gottheimer, Josh [D-NJ-5]",Homeland Security,Establishes a prize competition to advance interpretability research and the adversarial robustness of AI products.,R4,RG1,A4,
+2026-09-29,Artificial Intelligence Risk Management and Security Act of 2026 (S.5576),https://www.congress.gov/bill/119th-congress/senate-bill/5576/text,"Sen. Warner, Mark R. [D-VA]","Sen. Schatz, Brian [D-HI]
+Sen. Kim, Andy [D-NJ]","Commerce, Science, and Transportation","Creates an Artificial Intelligence Safety Board within the Department of Commerce. Board to propose mandatory technical standards and security controls for AI developers to Commerce Secretary for adoption. Mandates disclosure of frontier models to the Board 45 days prior to public release. Requires AI developers to also publish and comply with model safety plans, and report AI safety and security incidents posing an imminent threat to national security. Developers and other entities may also share other AI incidents and flaws on a voluntary basis.",R1,"RG1, RG2, RG7",A1,
+2026-10-06,CISA Securing AI Task Force Act (H.R.10752),https://www.congress.gov/bill/119th-congress/house-bill/10752/text,"Rep. Carter, Troy A. [D-LA-2]","Rep. Thompson, Bennie G. [D-MS-2]",Homeland Security,Creates a task force within the Cybsersecurity and Infrastructure Security Agency to coordinate and advise on AI cyber risks and civil rights and civil liberties impacts of DHS AI deployments.,"R1, R3",RG1,A4,
+2026-10-22,AI Cyber Defense Act (H.R.10873),https://www.congress.gov/bill/119th-congress/house-bill/10873/text,"Rep. Harrigan, Pat [R-NC-10]","Rep. Whitesides, George [D-CA-27]","Science, Space, and Technology",Requires NIST to work with the private sector to create voluntary standards and best practices for stopping AI distillation attacks.,R1,RG1,A1,
+NOT ON CONGRESS.GOV YET,CLAIM Act,https://trahan.house.gov/uploadedfiles/claim_act_final.pdf,"Rep. Trahan, Lori [D-MA-3]",,,Establishes criteria under which AI developers will be held liable for all reasonably foreseeable injuries to a non-user of their AI systems.,R4,RG8,A3,

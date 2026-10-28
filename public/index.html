@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artificial Intelligence Legislation Tracker</title>
+<style>
+@font-face {
+  font-family: "Benton";
+  src: url("Benton Sans/Benton Sans Book.otf");
+}
+@font-face {
+  font-family: "BentonMedium";
+  src: url("Benton Sans/Benton Sans Medium.otf");
+}
+@font-face {
+  font-family: "BentonStrong";
+  src: url("Benton Sans/Benton Sans Bold.otf");
+}
+
+:root {
+  --yellow: #ffcf01;
+  --red: #ed1c24;
+  --blue: #007194;
+  --orange: #f67613;
+  --purple: #711471;
+  --black: #000;
+  --white: #fff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--white);
+  color: var(--black);
+  font-family: "Benton", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.wrap {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 16px 16px 64px;
+}
+
+h1 {
+  font-family: "BentonStrong", Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  font-weight: normal;
+  line-height: normal;
+  margin: 0 0 12px;
+  padding: 10px 0 4px;
+  border-top: 3px solid var(--black);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 16px;
+}
+
+.search {
+  font: inherit;
+  color: var(--black);
+  border: 1px solid var(--black);
+  border-radius: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  padding: 2px 8px;
+  width: min(360px, 100%);
+  background: var(--white);
+}
+.search:focus, .people:focus { outline: 2px solid var(--purple); outline-offset: 1px; }
+
+.people-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.people-field .code-label { margin: 0; white-space: nowrap; }
+.people.state { width: min(200px, 100%); }
+select.people {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 10px 6px;
+}
+@media (max-width: 560px) {
+  .people-field { flex-wrap: wrap; gap: 4px; }
+}
+
+.people {
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--black);
+  background: var(--white);
+  border: 1px solid var(--black);
+  border-radius: 0;
+  padding: 2px 8px;
+  width: min(320px, 100%);
+}
+
+.filters {
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+.filter-group {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 8px;
+  align-items: start;
+  padding: 6px 0;
+}
+.filter-group .code-label { padding-top: 3px; }
+.filter-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.filter-btn {
+  font: inherit;
+  font-family: "Benton", Helvetica, Arial, sans-serif;
+  color: var(--black);
+  background: var(--white);
+  border: 1px solid var(--black);
+  border-radius: 0;
+  padding: 2px 8px;
+  cursor: pointer;
+  text-align: left;
+}
+.filter-btn:hover { background: color-mix(in srgb, var(--purple) 8%, white); }
+.filter-btn[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--purple) 18%, white);
+  border-color: var(--purple);
+  box-shadow: inset 0 0 0 1px var(--purple);
+}
+.filter-btn:disabled { opacity: 0.4; cursor: default; background: var(--white); }
+.filter-btn .n { margin-left: 4px; }
+.clear-btn {
+  font: inherit;
+  color: var(--black);
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-top: 6px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--purple);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.clear-btn[hidden] { display: none; }
+@media (max-width: 560px) {
+  .filter-group { grid-template-columns: 1fr; gap: 4px; }
+}
+
+.count { font-size: 13px; margin-bottom: 8px; }
+
+.table-scroll {
+  overflow-x: auto;
+  border-top: 2px solid var(--black);
+}
+
+table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--black);
+}
+
+th {
+  font-family: "BentonStrong", Helvetica, Arial, sans-serif;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 9px;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  position: sticky;
+  top: 0;
+  background: var(--white);
+  border-bottom: 2px solid var(--black);
+}
+th .arrow { display: inline-block; width: 1em; font-size: 9px; }
+
+td.title { font-family: "BentonMedium", Helvetica, Arial, sans-serif; min-width: 140px; }
+td.title { font-size: 15px; line-height: 1.3; }
+td.title a { text-decoration-color: var(--black); text-decoration-thickness: 1px; }
+td.title .bill-number { margin-top: 4px; font-family: "Benton", Helvetica, Arial, sans-serif; }
+td.summary { min-width: 220px; }
+td.date { width: 1%; }
+td.sponsor { min-width: 130px; }
+
+a {
+  color: var(--black);
+  text-decoration-color: var(--purple);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+a:hover { background: color-mix(in srgb, var(--purple) 12%, transparent); }
+
+.tag {
+  display: inline-block;
+  font-family: "Benton", Helvetica, Arial, sans-serif;
+  padding: 1px 0;
+  margin: 0 4px 4px 0;
+  white-space: nowrap;
+}
+
+td.codes { min-width: 150px; max-width: 200px; }
+td.codes .tag {
+  display: table;
+  margin: 0 0 4px;
+  white-space: normal;
+}
+td.codes .code {
+  font-family: "Benton", Helvetica, Arial, sans-serif;
+  color: var(--black);
+  background: var(--yellow);
+  padding: 0 4px;
+}
+.code-group + .code-group { margin-top: 8px; }
+.code-label {
+  font-family: "BentonStrong", Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+  font-size: 9px;
+  letter-spacing: 0.02em;
+  margin-bottom: 3px;
+}
+
+details.cosponsors { margin-top: 6px; }
+td.sponsor .committee { margin-top: 8px; }
+details summary { cursor: pointer; white-space: nowrap; }
+details ul {
+  margin: 6px 0 0;
+  padding: 0 4px 0 0;
+  list-style: none;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+
+.empty, .error { padding: 24px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Artificial Intelligence Legislation Tracker</h1>
+
+  <div class="controls">
+    <label class="people-field">
+      <span class="code-label">Sponsors / Co-sponsors</span>
+      <select class="people">
+        <option value="">All sponsors and co-sponsors</option>
+      </select>
+    </label>
+    <label class="people-field">
+      <span class="code-label">Sponsors / Co-sponsors States</span>
+      <select class="people state">
+        <option value="">All states</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="filters">
+    <div class="filter-list"></div>
+    <button class="clear-btn" type="button" hidden>Clear filters</button>
+  </div>
+
+  <div class="controls">
+    <label class="people-field">
+      <span class="code-label">Search</span>
+      <input class="search" type="search" placeholder="Bills, sponsors, summaries…">
+    </label>
+  </div>
+
+  <div class="count"></div>
+  <div class="table-scroll">
+    <table>
+      <thead><tr></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+const CSV_FILE = "Frontier AI Bill Tracker 10.28.26 - Frontier.csv";
+
+const COLUMNS = [
+  { key: "Title", label: "Bill", cls: "title" },
+  { key: "Date introduced", label: "Introduced", cls: "date" },
+  { key: "Sponsor", label: "Sponsor / Committee", cls: "sponsor" },
+  { key: "Risk(s)", label: "Categories", cls: "codes" },
+  { key: "Bill summary", label: "Summary", cls: "summary" }
+];
+
+const CODE_LABELS = {
+  R1: "Catastrophic risks",
+  R2: "Social and economic harms",
+  R3: "Risks and harms arising from the government’s use of AI",
+  R4: "No risk specified",
+  RG1: "Voluntary standards",
+  RG2: "Mandatory testing",
+  RG3: "Third-party audits",
+  RG4: "AI shutdown or “kill switch” requirements",
+  RG5: "Restricting AI development",
+  RG6: "Restricting AI deployment",
+  RG7: "Transparency",
+  RG8: "Liability",
+  RG9a: "Preemption",
+  RG9b: "Anti-preemption",
+  RG9c: "Deregulation",
+  A1: "Department of Commerce",
+  A2: "Department of Artificial Intelligence (new agency)",
+  A3: "Department of Justice",
+  A4: "Other federal agencies",
+  A5: "White House"
+};
+
+// "RG9(c)" -> "RG9c"
+function normCode(c) {
+  return c.replace(/[()\s]/g, "");
+}
+
+function codeLabel(c) {
+  return CODE_LABELS[normCode(c)] || c;
+}
+
+const CODE_GROUPS = [
+  { key: "Risk(s)", label: "Risk", match: /^R\d/ },
+  { key: "Regulation Type(s)", label: "Regulation", match: /^RG/ },
+  { key: "Authority", label: "Authority", match: /^A/ }
+];
+
+let rows = [];
+let sortKey = null;
+let sortDir = 1;
+
+// Selected codes per group: OR within a group, AND across groups
+const active = Object.fromEntries(CODE_GROUPS.map(g => [g.key, new Set()]));
+
+const thead = document.querySelector("thead tr");
+const tbody = document.querySelector("tbody");
+const search = document.querySelector(".search");
+const count = document.querySelector(".count");
+const people = document.querySelector(".people:not(.state)");
+const stateSelect = document.querySelector(".state");
+
+const STATE_NAMES = {
+  AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California", CO: "Colorado",
+  CT: "Connecticut", DE: "Delaware", FL: "Florida", GA: "Georgia", HI: "Hawaii", ID: "Idaho",
+  IL: "Illinois", IN: "Indiana", IA: "Iowa", KS: "Kansas", KY: "Kentucky", LA: "Louisiana",
+  ME: "Maine", MD: "Maryland", MA: "Massachusetts", MI: "Michigan", MN: "Minnesota", MS: "Mississippi",
+  MO: "Missouri", MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey",
+  NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota", OH: "Ohio", OK: "Oklahoma",
+  OR: "Oregon", PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina", SD: "South Dakota",
+  TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont", VA: "Virginia", WA: "Washington",
+  WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming", DC: "District of Columbia", PR: "Puerto Rico",
+  GU: "Guam", VI: "U.S. Virgin Islands", AS: "American Samoa", MP: "Northern Mariana Islands"
+};
+
+// "Rep. Lieu, Ted [D-CA-36]" -> "CA"
+function personState(p) {
+  const m = p.match(/\[[^\]-]+-([A-Z]{2})/);
+  return m ? m[1] : null;
+}
+const filterList = document.querySelector(".filter-list");
+const clearBtn = document.querySelector(".clear-btn");
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function formatDate(iso) {
+  const d = new Date(iso + "T00:00:00");
+  if (isNaN(d)) return esc(iso);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function codes(s) {
+  return s.split(/[,;]/).map(x => x.trim()).filter(Boolean);
+}
+
+function renderCell(col, row) {
+  const v = row[col.key] || "";
+  switch (col.key) {
+    case "Title": {
+      if (!row.Link) return esc(v);
+      const link = text => `<a href="${esc(row.Link)}" target="_blank" rel="noopener">${esc(text)}</a>`;
+      // "Name (H.R.8031; see also S.4216)" -> only the first bill number is linked
+      const m = v.match(/^(.*?)\s*\(([^();]+)([^()]*)\)\s*$/);
+      if (!m) return link(v);
+      return `${esc(m[1])}<div class="bill-number">${link(m[2].trim())}${esc(m[3])}</div>`;
+    }
+    case "Date introduced":
+      return v ? formatDate(v) : "";
+    case "Sponsor": {
+      const names = (row["Co-sponsors"] || "").split("\n").map(x => x.trim()).filter(Boolean);
+      const label = names.length === 1 ? "1 co-sponsor" : `${names.length} co-sponsors`;
+      const cosponsors = names.length
+        ? `<details class="cosponsors"><summary>${label}</summary><ul>${names.map(n => `<li>${esc(n)}</li>`).join("")}</ul></details>`
+        : "";
+      const committees = (row.Committee || "").split(";").map(x => x.trim()).filter(Boolean);
+      const committee = committees.length
+        ? `<div class="committee"><div class="code-label">Committee</div>${committees.map(c => `<div>${esc(c)}</div>`).join("")}</div>`
+        : "";
+      return esc(v) + cosponsors + committee;
+    }
+    case "Risk(s)":
+      return CODE_GROUPS.map(g => {
+        const list = codes(row[g.key] || "");
+        if (!list.length) return "";
+        const tags = list.map(c => `<span class="tag"><span class="code">${esc(normCode(c))}</span> ${esc(codeLabel(c))}</span>`).join("");
+        return `<div class="code-group"><div class="code-label">${g.label}</div>${tags}</div>`;
+      }).join("");
+    case "Bill summary": {
+      const extra = (row._extraLinks || []).map(u => ` <a href="${esc(u)}" target="_blank" rel="noopener">Related document</a>`).join("");
+      return esc(v).replace(/\n/g, "<br>") + extra;
+    }
+    default:
+      return esc(v).replace(/\n/g, "<br>");
+  }
+}
+
+function renderHead() {
+  thead.innerHTML = COLUMNS.map(c => {
+    const arrow = sortKey === c.key ? (sortDir === 1 ? "▲" : "▼") : "";
+    return `<th data-key="${esc(c.key)}">${esc(c.label)} <span class="arrow">${arrow}</span></th>`;
+  }).join("");
+}
+
+function renderFilters() {
+  filterList.innerHTML = CODE_GROUPS.map(g => {
+    const buttons = Object.keys(CODE_LABELS).filter(c => g.match.test(c)).map(c => {
+      const n = rows.filter(r => r._codes[g.key].has(c)).length;
+      const pressed = active[g.key].has(c);
+      return `<button type="button" class="filter-btn" data-group="${esc(g.key)}" data-code="${esc(c)}" aria-pressed="${pressed}"${n ? "" : " disabled"}>${esc(CODE_LABELS[c])}<span class="n">(${n})</span></button>`;
+    }).join("");
+    return `<div class="filter-group"><div class="code-label">${g.label}</div><div class="filter-buttons">${buttons}</div></div>`;
+  }).join("");
+  clearBtn.hidden = !people.value && !stateSelect.value && !CODE_GROUPS.some(g => active[g.key].size);
+}
+
+// Sponsors and co-sponsors, alphabetical, with how many bills each is on
+function renderPeople() {
+  const counts = new Map();
+  rows.forEach(r => r._people.forEach(p => counts.set(p, (counts.get(p) || 0) + 1)));
+  const names = [...counts.keys()].sort((a, b) => a.replace(/^\w+\. /, "").localeCompare(b.replace(/^\w+\. /, "")));
+  people.innerHTML = `<option value="">All sponsors and co-sponsors (${names.length})</option>` +
+    names.map(p => `<option value="${esc(p)}">${esc(p)} (${counts.get(p)})</option>`).join("");
+}
+
+// States of sponsors and co-sponsors, with how many bills each appears on
+function renderStates() {
+  const counts = new Map();
+  rows.forEach(r => r._states.forEach(s => counts.set(s, (counts.get(s) || 0) + 1)));
+  const name = s => STATE_NAMES[s] || s;
+  const states = [...counts.keys()].sort((a, b) => name(a).localeCompare(name(b)));
+  stateSelect.innerHTML = `<option value="">All states (${states.length})</option>` +
+    states.map(s => `<option value="${esc(s)}">${esc(name(s))} (${counts.get(s)})</option>`).join("");
+}
+
+function matchesFilters(r) {
+  if (people.value && !r._people.has(people.value)) return false;
+  if (stateSelect.value && !r._states.has(stateSelect.value)) return false;
+  return CODE_GROUPS.every(g => !active[g.key].size || [...active[g.key]].some(c => r._codes[g.key].has(c)));
+}
+
+function render() {
+  const q = search.value.trim().toLowerCase();
+  let list = rows.filter(r => matchesFilters(r) && (!q || [...COLUMNS.map(c => c.key), "Co-sponsors", "Committee", "Regulation Type(s)", "Authority", "Date introduced", "_codeLabels"].some(k => (r[k] || "").toLowerCase().includes(q))));
+  if (sortKey) {
+    list = list.slice().sort((a, b) => (a[sortKey] || "").localeCompare(b[sortKey] || "", undefined, { numeric: true }) * sortDir);
+  }
+  count.textContent = `Showing ${list.length} of ${rows.length} bills`;
+  tbody.innerHTML = list.length
+    ? list.map(r => `<tr>${COLUMNS.map(c => `<td class="${c.cls}">${renderCell(c, r)}</td>`).join("")}</tr>`).join("")
+    : `<tr><td class="empty" colspan="${COLUMNS.length}">No bills match your search and filters.</td></tr>`;
+  renderHead();
+}
+
+thead.addEventListener("click", e => {
+  const th = e.target.closest("th");
+  if (!th) return;
+  const key = th.dataset.key;
+  if (sortKey === key) sortDir = -sortDir;
+  else { sortKey = key; sortDir = 1; }
+  render();
+});
+
+search.addEventListener("input", render);
+[people, stateSelect].forEach(sel => sel.addEventListener("change", () => {
+  renderFilters();
+  render();
+}));
+
+filterList.addEventListener("click", e => {
+  const btn = e.target.closest(".filter-btn");
+  if (!btn) return;
+  const set = active[btn.dataset.group];
+  const code = btn.dataset.code;
+  if (set.has(code)) set.delete(code);
+  else set.add(code);
+  renderFilters();
+  render();
+});
+
+clearBtn.addEventListener("click", () => {
+  CODE_GROUPS.forEach(g => active[g.key].clear());
+  people.value = "";
+  stateSelect.value = "";
+  renderFilters();
+  render();
+});
+
+Papa.parse(CSV_FILE, {
+  download: true,
+  header: true,
+  skipEmptyLines: "greedy",
+  transformHeader: h => h.trim(),
+  complete: res => {
+    rows = res.data.map(r => {
+      // Unlabeled columns that hold a URL get shown as an extra link
+      const extra = Object.keys(r)
+        .filter(k => (!k || k.startsWith("_")) && /^https?:\/\//.test((r[k] || "").trim()))
+        .map(k => r[k].trim());
+      const codeLabels = CODE_GROUPS.flatMap(g => codes(r[g.key] || "").map(codeLabel)).join(" ");
+      const codeSets = Object.fromEntries(CODE_GROUPS.map(g => [g.key, new Set(codes(r[g.key] || "").map(normCode))]));
+      const peopleSet = new Set([r.Sponsor || "", ...(r["Co-sponsors"] || "").split("\n")].map(p => p.trim()).filter(Boolean));
+      const stateSet = new Set([...peopleSet].map(personState).filter(Boolean));
+      return { ...r, _extraLinks: extra, _codeLabels: codeLabels, _codes: codeSets, _people: peopleSet, _states: stateSet };
+    });
+    renderPeople();
+    renderStates();
+    renderFilters();
+    render();
+  },
+  error: () => {
+    tbody.innerHTML = `<tr><td class="error" colspan="${COLUMNS.length}">Could not load the data file. Open this page through a local web server rather than directly from the file system.</td></tr>`;
+  }
+});
+</script>
+</body>
+</html>
