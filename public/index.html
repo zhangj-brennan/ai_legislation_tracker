@@ -88,6 +88,8 @@ h1 {
 select.people {
   -webkit-appearance: none;
   appearance: none;
+  border: 0;
+  background-color: #f0f0f0;
   padding-right: 30px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -127,20 +129,16 @@ select.people {
   font: inherit;
   font-family: "Benton", Helvetica, Arial, sans-serif;
   color: var(--black);
-  background: var(--white);
-  border: 1px solid var(--black);
+  background: #f0f0f0;
+  border: 0;
   border-radius: 0;
   padding: 2px 8px;
   cursor: pointer;
   text-align: left;
 }
-.filter-btn:hover { background: color-mix(in srgb, var(--purple) 8%, white); }
-.filter-btn[aria-pressed="true"] {
-  background: color-mix(in srgb, var(--purple) 18%, white);
-  border-color: var(--purple);
-  box-shadow: inset 0 0 0 1px var(--purple);
-}
-.filter-btn:disabled { opacity: 0.4; cursor: default; background: var(--white); }
+.filter-btn:hover { background: color-mix(in srgb, var(--purple) 10%, white); }
+.filter-btn[aria-pressed="true"] { background: var(--yellow); }
+.filter-btn:disabled { opacity: 0.4; cursor: default; background: #f0f0f0; }
 .filter-btn .n { margin-left: 4px; }
 .clear-btn {
   font: inherit;
@@ -160,7 +158,26 @@ select.people {
   .filter-group { grid-template-columns: 1fr; gap: 4px; }
 }
 
-.count { font-size: 13px; margin-bottom: 8px; }
+.count { font-size: 13px; }
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 8px;
+  background: var(--white);
+}
+.filter-toggle {
+  display: none;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--black);
+  background: #f0f0f0;
+  border: 0;
+  border-radius: 0;
+  padding: 2px 8px;
+  cursor: pointer;
+}
 
 .table-scroll {
   overflow-x: auto;
@@ -229,8 +246,6 @@ td.codes .tag {
 td.codes .code {
   font-family: "Benton", Helvetica, Arial, sans-serif;
   color: var(--black);
-  background: var(--yellow);
-  padding: 0 4px;
 }
 .code-group + .code-group { margin-top: 8px; }
 .code-label {
@@ -254,12 +269,63 @@ details ul {
 
 
 .empty, .error { padding: 24px 0; }
+
+/* Mobile: each bill is two rows — bill (with categories), date, sponsor; then the summary */
+@media (max-width: 640px) {
+  /* Title and filters stay pinned to the top; the filters fold away while scrolling */
+  .filter-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: var(--white);
+  }
+  .filter-panel {
+    max-height: 65vh;
+    overflow-y: auto;
+  }
+  .filter-sticky.collapsed .filter-panel { display: none; }
+  .filter-sticky h1 { margin-bottom: 8px; }
+  .filter-bar { padding: 8px 0; }
+  .filter-toggle { display: inline-block; }
+  .filter-toggle[aria-expanded="false"] { background: var(--yellow); }
+
+  .table-scroll { overflow: visible; }
+  table, tbody { display: block; }
+  thead { display: none; }
+  table { min-width: 0; }
+  tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) 72px minmax(0, 1fr);
+    column-gap: 12px;
+    grid-template-areas:
+      "title date sponsor"
+      "codes date sponsor"
+      "summary summary summary";
+    padding: 12px 0;
+    border-bottom: 1px solid var(--black);
+  }
+  tbody td {
+    border: 0;
+    padding: 0;
+    min-width: 0;
+    max-width: none;
+    width: auto;
+  }
+  td.title { grid-area: title; }
+  td.codes { grid-area: codes; margin-top: 10px; }
+  td.date { grid-area: date; }
+  td.sponsor { grid-area: sponsor; }
+  td.summary { grid-area: summary; margin-top: 12px; }
+  td.empty, td.error { grid-column: 1 / -1; }
+}
 </style>
 </head>
 <body>
 <div class="wrap">
+  <div class="filter-sticky">
   <h1>Artificial Intelligence Legislation Tracker</h1>
 
+  <div class="filter-panel">
   <div class="controls">
     <label class="people-field">
       <span class="code-label">Sponsors / Co-sponsors</span>
@@ -286,8 +352,13 @@ details ul {
       <input class="search" type="search" placeholder="Bills, sponsors, summaries…">
     </label>
   </div>
+  </div>
 
-  <div class="count"></div>
+  <div class="filter-bar">
+    <button class="filter-toggle" type="button" aria-expanded="true">Hide filters</button>
+    <div class="count"></div>
+  </div>
+  </div>
   <div class="table-scroll">
     <table>
       <thead><tr></tr></thead>
@@ -439,7 +510,7 @@ function renderCell(col, row) {
 function renderHead() {
   thead.innerHTML = COLUMNS.map(c => {
     const arrow = sortKey === c.key ? (sortDir === 1 ? "▲" : "▼") : "";
-    return `<th data-key="${esc(c.key)}">${esc(c.label)} <span class="arrow">${arrow}</span></th>`;
+    return `<th class="${c.cls}" data-key="${esc(c.key)}">${esc(c.label)} <span class="arrow">${arrow}</span></th>`;
   }).join("");
 }
 
@@ -503,7 +574,38 @@ thead.addEventListener("click", e => {
 });
 
 search.addEventListener("input", render);
-[people, stateSelect].forEach(sel => sel.addEventListener("change", () => {
+
+// Mobile: collapse the filters as soon as the reader scrolls down; the toggle reopens them
+const filterSticky = document.querySelector(".filter-sticky");
+const filterToggle = document.querySelector(".filter-toggle");
+const mobile = window.matchMedia("(max-width: 640px)");
+
+function setFiltersOpen(open) {
+  filterSticky.classList.toggle("collapsed", !open);
+  filterToggle.setAttribute("aria-expanded", open);
+  const n = (people.value ? 1 : 0) + (stateSelect.value ? 1 : 0) + (search.value.trim() ? 1 : 0) +
+    CODE_GROUPS.reduce((sum, g) => sum + active[g.key].size, 0);
+  filterToggle.textContent = open ? "Hide filters" : n ? `Show filters (${n})` : "Show filters";
+}
+
+// Opening the panel shifts the page, and the browser may adjust the scroll position to match;
+// ignore scroll events briefly so that adjustment doesn't immediately collapse it again
+let ignoreScrollUntil = 0;
+
+filterToggle.addEventListener("click", () => {
+  ignoreScrollUntil = performance.now() + 500;
+  setFiltersOpen(filterSticky.classList.contains("collapsed"));
+});
+
+let lastY = window.scrollY;
+window.addEventListener("scroll", () => {
+  const y = window.scrollY;
+  if (performance.now() < ignoreScrollUntil) { lastY = y; return; }
+  if (mobile.matches && y > lastY && y > 10 && !filterSticky.classList.contains("collapsed")) {
+    setFiltersOpen(false);
+  }
+  lastY = y;
+}, { passive: true });[people, stateSelect].forEach(sel => sel.addEventListener("change", () => {
   renderFilters();
   render();
 }));
