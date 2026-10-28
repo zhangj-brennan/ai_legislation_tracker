@@ -533,11 +533,34 @@ function renderFilters() {
   clearBtn.hidden = !CODE_GROUPS.some(g => active[g.key].size);
 }
 
-const SEARCH_KEYS = [...COLUMNS.map(c => c.key), "Co-sponsors", "Committee", "Regulation Type(s)", "Authority", "Date introduced", "_codeLabels"];
+// Search looks only at text shown in the table, not raw codes; labels and the co-sponsor count are skipped.
+// Each text node is joined with a space, so a match can run across line breaks and tags.
+function textNodes(el) {
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+    acceptNode: n => n.parentElement.closest(".code-label, summary") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+  });
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  return nodes;
+}
+
+// "ai  safety" -> /ai\s+safety/gi
+function searchRegex(q) {
+  return new RegExp(q.split(/\s+/).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s+"), "gi");
+}
+
+function rowText(r) {
+  const div = document.createElement("div");
+  // Cells are joined with a non-space so a match can't run from one column into the next
+  return COLUMNS.map(c => {
+    div.innerHTML = renderCell(c, r);
+    return textNodes(div).map(n => n.nodeValue).join(" ");
+  }).join("\u0000");
+}
 
 function matchesSearch(r) {
-  const q = search.value.trim().toLowerCase();
-  return !q || SEARCH_KEYS.some(k => (r[k] || "").toLowerCase().includes(q));
+  const q = search.value.trim();
+  return !q || searchRegex(q).test(r._text);
 }
 
 // OR within a group, AND across groups; skipGroup leaves one group out (for its own button counts)
@@ -564,27 +587,39 @@ function render() {
   highlight(search.value.trim());
 }
 
-// Wrap each case-insensitive match of the search text in the table in <mark>,
-// and open any co-sponsor lists that contain one
+// Wrap each match of the search text in <mark>, splitting it across text nodes when it spans
+// a line break or tag, and open any co-sponsor lists that contain one
 function highlight(q) {
   if (!q) return;
-  const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
-  const walker = document.createTreeWalker(tbody, NodeFilter.SHOW_TEXT);
-  const nodes = [];
-  const lower = q.toLowerCase();
-  while (walker.nextNode()) if (walker.currentNode.nodeValue.toLowerCase().includes(lower)) nodes.push(walker.currentNode);
-  nodes.forEach(node => {
-    const frag = document.createDocumentFragment();
-    let last = 0;
-    node.nodeValue.replace(re, (m, i) => {
-      frag.append(node.nodeValue.slice(last, i));
-      const mark = document.createElement("mark");
-      mark.textContent = m;
-      frag.append(mark);
-      last = i + m.length;
+  const re = searchRegex(q);
+  tbody.querySelectorAll("td").forEach(td => {
+    const nodes = textNodes(td);
+    let text = "";
+    const starts = nodes.map(n => { const at = text.length; text += n.nodeValue + " "; return at; });
+    const ranges = nodes.map(() => []);
+    for (const m of text.matchAll(re)) {
+      const a = m.index, b = a + m[0].length;
+      nodes.forEach((n, i) => {
+        const from = Math.max(a, starts[i]) - starts[i];
+        const to = Math.min(b, starts[i] + n.nodeValue.length) - starts[i];
+        if (from < to) ranges[i].push([from, to]);
+      });
+    }
+    nodes.forEach((node, i) => {
+      if (!ranges[i].length) return;
+      const v = node.nodeValue;
+      const frag = document.createDocumentFragment();
+      let last = 0;
+      ranges[i].forEach(([from, to]) => {
+        frag.append(v.slice(last, from));
+        const mark = document.createElement("mark");
+        mark.textContent = v.slice(from, to);
+        frag.append(mark);
+        last = to;
+      });
+      frag.append(v.slice(last));
+      node.replaceWith(frag);
     });
-    frag.append(node.nodeValue.slice(last));
-    node.replaceWith(frag);
   });
   tbody.querySelectorAll("details.cosponsors").forEach(d => {
     if (d.querySelector("ul mark")) d.open = true;
@@ -679,10 +714,10 @@ Papa.parse(CSV_FILE, {
       const extra = Object.keys(r)
         .filter(k => (!k || k.startsWith("_")) && /^https?:\/\//.test((r[k] || "").trim()))
         .map(k => r[k].trim());
-      const codeLabels = CODE_GROUPS.flatMap(g => codes(r[g.key] || "").map(codeLabel)).join(" ");
       const codeSets = Object.fromEntries(CODE_GROUPS.map(g => [g.key, new Set(codes(r[g.key] || "").map(normCode))]));
-      return { ...r, _extraLinks: extra, _codeLabels: codeLabels, _codes: codeSets };
+      return { ...r, _extraLinks: extra, _codes: codeSets };
     });
+    rows.forEach(r => { r._text = rowText(r); });
     render();
   },
   error: () => {
