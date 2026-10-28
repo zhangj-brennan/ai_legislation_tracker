@@ -173,6 +173,7 @@ select.people {
   top: 0;
   z-index: 3;
   background: var(--white);
+  border-bottom: 1px solid var(--black);
 }
 .filter-panel {
   max-height: 65vh;
@@ -194,9 +195,11 @@ select.people {
   cursor: pointer;
 }
 
-.table-scroll {
-  overflow-x: auto;
-  border-top: 1px solid var(--black);
+/* Header pins below the sticky filters; .table-scroll must not set overflow or this stops working */
+th {
+  position: sticky;
+  top: var(--sticky-h, 0px);
+  z-index: 2;
 }
 
 table {
@@ -220,7 +223,9 @@ th {
   font-size: 9px;
   white-space: nowrap;
   background: var(--white);
-  border-bottom: 1px solid var(--black);
+  /* Drawn as a shadow: collapsed borders don't travel with a sticky cell */
+  border-bottom: 0;
+  box-shadow: inset 0 -1px 0 var(--black);
 }
 
 td.title { font-family: "BentonMedium", Helvetica, Arial, sans-serif; min-width: 140px; }
@@ -283,8 +288,6 @@ details ul {
 /* Mobile: each bill is two rows — bill (with categories), date, sponsor; then the summary */
 @media (max-width: 640px) {
   .filter-sticky h1 { margin-bottom: 8px; }
-
-  .table-scroll { overflow: visible; }
   table, tbody { display: block; }
   thead { display: none; }
   table { min-width: 0; }
@@ -573,6 +576,7 @@ sortSelect.addEventListener("change", render);
 // Collapse the filters as soon as the reader scrolls down; the toggle reopens them
 const filterSticky = document.querySelector(".filter-sticky");
 const filterToggle = document.querySelector(".filter-toggle");
+const wide = window.matchMedia("(min-width: 641px)");
 
 function setFiltersOpen(open) {
   filterSticky.classList.toggle("collapsed", !open);
@@ -591,10 +595,22 @@ filterToggle.addEventListener("click", () => {
   setFiltersOpen(filterSticky.classList.contains("collapsed"));
 });
 
+// Keep the sticky table header just below the sticky filters as they open and close
+new ResizeObserver(() => {
+  document.documentElement.style.setProperty("--sticky-h", filterSticky.offsetHeight + "px");
+}).observe(filterSticky);
+
 let lastY = window.scrollY;
 window.addEventListener("scroll", () => {
   const y = window.scrollY;
   if (performance.now() < ignoreScrollUntil) { lastY = y; return; }
+  // Wide screens: reopen the filters once the reader is back at the top
+  if (wide.matches && y <= 0 && filterSticky.classList.contains("collapsed")) {
+    ignoreScrollUntil = performance.now() + 500;
+    setFiltersOpen(true);
+    lastY = y;
+    return;
+  }
   if (y > lastY && y > 10 && !filterSticky.classList.contains("collapsed")) {
     setFiltersOpen(false);
   }
