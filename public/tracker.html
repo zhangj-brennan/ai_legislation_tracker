@@ -433,8 +433,8 @@ const CODE_LABELS = {
   RG6: "Restricting AI Deployment",
   RG7: "Transparency",
   RG8: "Liability",
-  RG9a: "Pre-Emption",
-  RG9b: "Anti-Pre-Emption",
+  RG9a: "Preemption",
+  RG9b: "Anti-Preemption",
   RG9c: "Deregulation",
   A1: "Department of Commerce",
   A2: "Department of Artificial Intelligence (New Agency)",
@@ -525,8 +525,8 @@ function renderCell(col, row) {
     case "Date introduced":
       return dateHtml(row);
     case "Sponsor": {
-      const names = (row["Co-sponsors"] || "").split("\n").map(x => x.trim()).filter(Boolean);
-      const label = names.length === 1 ? "1 co-sponsor" : `${names.length} co-sponsors`;
+      const names = (row["Cosponsors"] || "").split("\n").map(x => x.trim()).filter(Boolean);
+      const label = names.length === 1 ? "1 cosponsor" : `${names.length} cosponsors`;
       const cosponsors = names.length
         ? `<details class="cosponsors"><summary>${label}</summary><ul>${names.map(n => `<li>${esc(n)}</li>`).join("")}</ul></details>`
         : "";
@@ -538,7 +538,7 @@ function renderCell(col, row) {
       const date = row["Date introduced"]
         ? `<div class="mobile-only code-label">Date introduced</div><div class="mobile-only mobile-date">${dateHtml(row)}</div>`
         : "";
-      return date + `<div class="mobile-only code-label">Sponsor / Co-sponsors</div>` + esc(v) + cosponsors + committee;
+      return date + `<div class="mobile-only code-label">Sponsor / Cosponsors</div>` + esc(v) + cosponsors + committee;
     }
     case "Risk(s)":
       return CODE_GROUPS.map(g => {
@@ -575,7 +575,7 @@ function renderFilters() {
   clearBtn.hidden = !CODE_GROUPS.some(g => active[g.key].size);
 }
 
-// Search looks only at text shown in the table, not raw codes; labels and the co-sponsor count are skipped.
+// Search looks only at text shown in the table, not raw codes; labels and the cosponsor count are skipped.
 // Each text node is joined with a space, so a match can run across line breaks and tags.
 function textNodes(el) {
   const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
@@ -633,7 +633,7 @@ function render() {
 }
 
 // Wrap each match of the search text in <mark>, splitting it across text nodes when it spans
-// a line break or tag, and open any co-sponsor lists that contain one
+// a line break or tag, and open any cosponsor lists that contain one
 function highlight(q) {
   if (!q) return;
   const re = searchRegex(q);
