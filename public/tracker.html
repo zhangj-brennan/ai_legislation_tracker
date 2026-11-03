@@ -394,7 +394,8 @@ html.scroll-locked body { overflow: hidden; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
-const CSV_FILE = "Frontier AI Bill Tracker 10.28.26 - Frontier.csv";
+// First tab of the Google Sheet, exported as CSV (the sheet must be viewable by anyone with the link)
+const CSV_FILE = "https://docs.google.com/spreadsheets/d/1oFkdTpm-49pUpR-IZpgYjLU7Y1VOgCa6JG2QcWGCa9g/export?format=csv&gid=0";
 
 const COLUMNS = [
   { key: "Title", label: "Bill", cls: "title" },
@@ -721,7 +722,7 @@ Papa.parse(CSV_FILE, {
     render();
   },
   error: () => {
-    tbody.innerHTML = `<tr><td class="error" colspan="${COLUMNS.length}">Could not load the data file. Open this page through a local web server rather than directly from the file system.</td></tr>`;
+    tbody.innerHTML = `<tr><td class="error" colspan="${COLUMNS.length}">Could not load the bill data. Please try again later.</td></tr>`;
   }
 });
 </script>

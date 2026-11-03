@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Category Definitions</title>
+<style>
+@font-face {
+  font-family: "Benton";
+  src: url("Benton Sans/Benton Sans Book.otf");
+}
+@font-face {
+  font-family: "BentonMedium";
+  src: url("Benton Sans/Benton Sans Medium.otf");
+}
+@font-face {
+  font-family: "BentonStrong";
+  src: url("Benton Sans/Benton Sans Bold.otf");
+}
+
+:root {
+  --yellow: #ffcf01;
+  --red: #ed1c24;
+  --blue: #007194;
+  --orange: #f67613;
+  --purple: #711471;
+  --black: #000;
+  --white: #fff;
+  --grey: #f0f0f0;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--white);
+  color: var(--black);
+  font-family: "Benton", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.wrap {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 16px 16px 64px;
+}
+
+a {
+  color: var(--black);
+  text-decoration-color: var(--purple);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+a:hover { background: var(--grey); }
+
+/* One block per section, separated by the same heavy rule the tracker title uses */
+.section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin-bottom: 32px;
+}
+
+/* Section header sits above the section's heavy rule */
+h2 {
+  font-family: "BentonStrong", Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  font-weight: normal;
+  line-height: normal;
+  margin: 0;
+  padding: 0 0 6px;
+  color: var(--section-color, var(--black));
+  border-bottom: 3px solid var(--section-color, var(--black));
+}
+.section[data-section="Risks"] { --section-color: var(--red); }
+.section[data-section="Regulatory Approaches"] { --section-color: var(--orange); }
+.section[data-section="Authorities"] { --section-color: var(--purple); }
+
+/* Definition links take their section's color, with a thin underline */
+.panel a {
+  color: var(--section-color, var(--black));
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 1px;
+}
+.panel a:hover { background: var(--grey); }
+
+.item { border-bottom: 1px solid var(--black); }
+
+.term {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  font: inherit;
+  font-family: "BentonMedium", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.3;
+  color: var(--black);
+  text-align: left;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+.term:hover { background: var(--grey); }
+.term:focus-visible { outline: 2px solid var(--purple); outline-offset: 1px; }
+.term::after {
+  content: "";
+  flex: none;
+  width: 10px;
+  height: 6px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat center / 10px 6px;
+  transition: transform 0.3s ease;
+}
+.term[aria-expanded="true"]::after { transform: rotate(180deg); }
+
+/* Animating grid rows 0fr <-> 1fr slides the panel to and from its real height */
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition: grid-template-rows 0.3s ease, opacity 0.2s ease, visibility 0s linear 0.3s;
+}
+.panel-inner { min-height: 0; overflow: hidden; }
+.item.open .panel {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  transition: grid-template-rows 0.3s ease, opacity 0.25s ease, visibility 0s linear 0s;
+}
+.panel p { font-size: 13px; margin: 0 0 10px; padding: 0 10%; }
+.panel p:first-child { margin-top: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .panel, .item.open .panel, .term::after { transition: none; }
+}
+
+/* Search bar, styled like the tracker's search; stays pinned while stepping through matches */
+.search-bar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 6px;
+  padding: 8px 0 12px;
+  margin-bottom: 16px;
+  background: var(--white);
+}
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-right: 6px;
+}
+.code-label {
+  font-family: "BentonStrong", Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+  font-size: 9px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.search {
+  font: inherit;
+  color: var(--black);
+  border: 0;
+  border-radius: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  padding: 2px 8px;
+  width: min(360px, 60vw);
+  background: var(--grey);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.search:focus { outline: 2px solid var(--purple); outline-offset: 1px; }
+.step {
+  width: 26px;
+  height: 23px;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  cursor: pointer;
+  background: var(--grey) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat center / 10px 6px;
+}
+.step.prev { transform: rotate(180deg); }
+.step:hover { background-color: var(--yellow); }
+.step:focus-visible { outline: 2px solid var(--purple); outline-offset: 1px; }
+.step:disabled { opacity: 0.4; cursor: default; background-color: var(--grey); }
+.count { font-size: 13px; margin-left: 6px; }
+
+mark { background: var(--yellow); color: inherit; padding: 0; }
+mark.current {
+  box-shadow: 0 0 0 2px var(--black);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="search-bar">
+    <label class="search-field">
+      <span class="code-label">Search</span>
+      <input class="search" type="search" placeholder="Terms and definitions…">
+    </label>
+    <button class="step prev" type="button" aria-label="Previous match" disabled></button>
+    <button class="step next" type="button" aria-label="Next match" disabled></button>
+    <span class="count" aria-live="polite"></span>
+  </div>
+  <div class="defs"></div>
+</div>
+
+<script>
+// Generated from "Category Definitions(Sheet1).csv"
+const DATA = [
+ {
+  "section": "Risks",
+  "term": "Catastrophic Risk",
+  "definition": "The dictionary definition of the term refers to the risk of “sudden and very great destruction or harm.” As a term of art in AI governance, however, it refers to a particular subset of risks: 1) threats to cybersecurity; 2) AI-enabled assistance of the development or release of a chemical, biological, radiological, or nuclear weapon; and 3) AI systems that attain abilities to evade human control and oversight. \n\nThese risks are at the center of a highly contentious debate over the role of human agency, responsibility, and control in the training and development of AI systems. An influential group of researchers and commentators, as well as key industry leaders, cite these risks as evidence that advances in AI will eventually outpace any human attempt to constrain their capabilities, potentially leading to catastrophic loss of life and severe economic damage or even human extinction. Skeptics of this worldview, however, argue that these risks stem from deliberate choices that AI developers make about how to train, fine-tune, and deploy their models. For example, they question the attribution of cyberattacks to “rogue” AI agents, when these agents were created from models that developers had trained to be highly persistent in identifying and exploiting software vulnerabilities. Still others argue that the focus on catastrophic risks distracts from present-day harms, such as the misuse of AI in warfare and the environmental impact of data centers.",
+  "links": [
+   {
+    "word": "dictionary definition",
+    "url": "https://dictionary.cambridge.org/us/dictionary/english/catastrophic"
+   },
+   {
+    "word": "human extinction",
+    "url": "https://www.newyorker.com/news/q-and-a/how-exactly-could-ai-kill-us"
+   },
+   {
+    "word": "created",
+    "url": "https://aiguide.substack.com/p/misleading-metaphors-and-real-risks"
+   },
+   {
+    "word": "distracts",
+    "url": "https://www.nytimes.com/2026/09/15/world/ai-doomsday-skeptics-sydney-sweeney.html"
+   }
+  ]
+ },
+ {
+  "section": "Risks",
+  "term": "Socioeconomic Harms",
+  "definition": "The current focus on catastrophic risk has pulled attention from other major AI harms, many of which are already impacting Americans. Lawmakers have proposed a slew of bills to regulate AI’s impacts on employment, voting, child safety, consumer privacy, equality, and the environment. The only bill in this category that has become law is the TAKE IT DOWN Act, which establishes criminal penalties for publishing certain deepfakes but creates no affirmative obligation for AI developers to prevent their generation. Notably, none of the proposals that purport to establish comprehensive regulation of frontier models and their developers address their role in facilitating social and economic harms.",
+  "links": [
+   {
+    "word": "are",
+    "url": "https://hai.stanford.edu/policy/white-paper-rethinking-privacy-ai-era-policy-provocations-data-centric-world"
+   },
+   {
+    "word": "already",
+    "url": "https://www.washingtonpost.com/lifestyle/2025/12/23/children-teens-ai-chatbot-companion/"
+   },
+   {
+    "word": "impacting",
+    "url": "https://bipartisanpolicy.org/issue-brief/ai-and-the-workforce-impacts-on-jobs-workers-and-employers/"
+   },
+   {
+    "word": "TAKE IT DOWN Act",
+    "url": "https://www.congress.gov/bill/119th-congress/senate-bill/146/text"
+   }
+  ]
+ },
+ {
+  "section": "Risks",
+  "term": "Government AI Risks",
+  "definition": "Lawmakers have also proposed a range of bills to regulate the government’s procurement and use of AI. These bills recognize that AI has proliferated across a wide range of government activities, with significant impacts on the exercise of civil rights and civil liberties. The sample of bills we examined would impose restrictions and other guardrails on the use of AI to administer Medicare and other public benefits, facilitate law enforcement and intelligence surveillance, and develop and deploy autonomous weapons. \n\nLawmakers regularly attempt to incorporate provisions from these bills into the National Defense Authorization Act (NDAA), which establishes policy guidelines for defense spending annually. The House-passed version of the NDAA for Fiscal Year 2027, for example, would require the Pentagon to update its policy on the development and fielding of autonomous weapon systems to enhance human oversight and accountability in the use of force. Bills that lawmakers have separately introduced to regulate autonomous weapons would establish similar requirements.",
+  "links": []
+ },
+ {
+  "section": "Risks",
+  "term": "No Risk Specified",
+  "definition": "Some bills do not specify the risk or risks that they would address.",
+  "links": []
+ },
+ {
+  "section": "Regulatory Approaches",
+  "term": "Voluntary Standards",
+  "definition": "A significant number of bills would direct the federal government to develop voluntary standards and best practices for evaluating the safety and security of AI systems and mitigating AI risk. The goal of the voluntary process is to generate consensus across industry, academia, and civil society on how AI systems should be tested and safely developed. Most of these bills would direct the Commerce Department’s National Institute of Standards and Technology (NIST), the federal laboratory that develops measurement solutions and technical standards in the physical sciences, to establish these standards. A few bills would mandate compliance with NIST standards as a condition of obtaining a federal contract.  \n\nThis category also includes bills that support AI safety or security research, such as those that would provide access to computational resources for testing and evaluations, or establish prize competitions to spur innovation in safety research. \n\nMost of the bills to establish voluntary standards and best practices were introduced before July 2026, when OpenAI disclosed that its AI agents had hacked into the software servers of Hugging Face. A significant proportion of the bills introduced after the disclosure would establish mandatory federal standards, though their scope and approach vary widely (see “Mandatory Testing”; “Third-Party Audits”; “Restricting AI Development”; and “Liability”).",
+  "links": [
+   {
+    "word": "generate consensus",
+    "url": "https://www.hickenlooper.senate.gov/press_releases/hickenlooper-capito-reintroduce-bipartisan-bill-to-boost-ai-standards-create-guidelines-for-third-party-evaluations-of-ai/"
+   }
+  ]
+ },
+ {
+  "section": "Regulatory Approaches",
+  "term": "Mandatory Testing",
+  "definition": "Some lawmakers have proposed mandating federal testing of frontier models for cybersecurity and other risks prior to their public release, but leave it up to AI developers to decide whether they accept the testing recommendations. The Trump administration has adopted a weaker version of this approach, establishing a framework for AI developers to voluntarily submit to classified testing by intelligence authorities to assess the cyber capabilities of their models. In the absence of a formalized and binding decision-making process, negotiations about the validity of testing outcomes and how developers should address them are more likely to take place behind closed doors. The closed-door nature of these discussions also increases the risk that government and private actors will seek to covertly influence testing outcomes to align with their respective interests.",
+  "links": [
+   {
+    "word": "increases the risk",
+    "url": "https://www.brennancenter.org/our-work/analysis-opinion/trumps-chaotic-ai-and-cybersecurity-policy"
+   }
+  ]
+ },
+ {
+  "section": "Regulatory Approaches",
+  "term": "Third-Party Audits",
+  "definition": "Third party audits are one-off or continuous assessments conducted by an external organization to determine a company’s compliance with standards or regulations concerning AI safety and security. A growing number of lawmakers would outsource key aspects of AI governance — from the testing of models prior to public release to oversight of a developer’s internal security practices — to the emerging ecosystem of third-party evaluators. Such evaluators include METR, the nonprofit that OpenAI commissioned to investigate the Hugging Face attack, and Accenture, which Anthropic has embedded with its internal safety teams to evaluate and red-team models. \n\nAI governance experts, as well as third-party evaluators themselves, have raised concerns that evaluators are prone to conflicts of interest, and AI developers control which systems, data, and tools they can access. Some lawmakers have proposed federal oversight to ensure minimum auditing standards and financial transparency, drawing inspiration from how the Financial Industry Regulatory Authority oversees investment firms. But this proposal does not fully address broader concerns about whether evaluators will be comfortable issuing findings their clients disagree with or capable of negotiating terms of access that enable comprehensive audits. Notably, these proposals are narrowly focused on regulating how AI developers address catastrophic risk and do not address the technology’s impacts on civil rights and civil liberties, and its broader harms to democracy, society, consumers, and the economy.",
+  "links": [
+   {
+    "word": "METR",
+    "url": "https://metr.org/"
+   },
+   {
+    "word": "Accenture",
+    "url": "https://newsroom.accenture.com/news/2026/accenture-and-anthropic-partner-to-build-team-of-embedded-evaluators-at-anthropic"
+   },
+   {
+    "word": "third-party evaluators themselves",
+    "url": "https://aievaluatorforum.org/initiatives/embedded-evaluation-letter"
+   },
+   {
+    "word": "Financial Industry Regulatory Authority",
+    "url": "https://x.com/demishassabis/status/2076957440109625718"
+   },
+   {
+    "word": "broader concerns",
+    "url": "https://cdt.org/insights/getting-third-party-ai-assessment-right/"
+   }
+  ]
+ },
+ {
+  "section": "Regulatory Approaches",
+  "term": "Shutdown or “Kill Switch”",
+  "definition": "Kill switch proposals would require AI developers to install a technical capability on their AI systems that, when activated, shuts down or terminates access to these systems in emergency situations. The proposed criteria for activating a kill switch vary widely. Some lawmakers would shut down AI systems simply if they access other software systems without permission, while others would require a finding that the system will imminently contribute to significant death, serious injury, or economic damage. Most kill switch proposals would empower the federal government to issue mandatory shutdown orders, but they differ on which agency should be in charge. Technical experts have observed that the distributed architecture of AI systems makes it difficult to isolate and pull the problematic system offline. Kill switches have also been likened to encryption backdoors: as both are deliberately designed to bypass security protections, they create security vulnerabilities that could be exploited by malicious actors.",
+  "links": [
+   {
+    "word": "shut down",
+    "url": "https://www.sanders.senate.gov/wp-content/uploads/Ban-Artificial-Superintelligence-Act.pdf?inline=1"
+   },
+   {
+    "word": "require a finding",
+    "url": "https://obernolte.house.gov/sites/evo-subsites/obernolte.house.gov/files/evo-media-document/oberno_079_xml-the-frontier-act-final-text.pdf?inline=1"
+   },
+   {
+    "word": "distributed architecture of AI systems",
+    "url": "https://www.nytimes.com/2026/09/19/science/creating-a-kill-switch-to-shut-down-a-rogue-ai-is-harder-than-it-sounds.html"
+   },
+   {
+    "word": "been likened",
+    "url": "https://cyberscoop.com/ai-kill-switch-act-clipper-chip-mistakes-op-ed/"
+   }
+  ]
+ },
+ {
+  "section": "Regulatory Approaches",
+  "term": "Restricting AI Development",
+  "definition": "A group of lawmakers are pushing to pause some aspects of AI development or ban it altogether. Such restrictions are justified on the basis that, if AI development continues unabated, catastrophic risks are likely to materialize, leading to the loss of life or severe economic damage. This rationale broadly aligns with growing public alarm about the dangers of AI, and echoes AI doomsday scenarios that an influential group of AI thinkers as well as key industry leaders have long warned about. But skeptics argue that these scenarios are far-fetched and self-serving, pulling attention and focus away from present-day harms.\n\nAs with “kill switches,” a ban or a pause would be technically complicated to implement. A broad definition or interpretation of these restrictions could also hamper the development and deployment of AI systems that are highly beneficial and do not pose catastrophic risk. Notably, these proposals are narrowly focused on restricting AI that raises catastrophic risk and omit federal oversight of the technology’s impact on civil rights and civil liberties, and its broader harms to democracy, society, consumers, and the economy.",
+  "links": [
+   {
+    "word": "growing public alarm",
+    "url": "https://www.politico.com/news/2026/09/16/poll-ai-technology-risks-humanity-trump-voters-01078087"
+   },
+   {
+    "word": "AI doomsday scenarios",
+    "url": "https://apnews.com/article/ai-doomsday-disease-nuclear-paper-clip-ce46c6200e078bb7967e5260efda5e5a"
+   },
+   {
+    "word": "far-fetched",
+    "url": "https://www.di.ens.fr/~fbach/MJordan_ITW_Liberation_English.html"
+   },
+   {
+    "word": "self-serving",
+    "url": "https://www.nytimes.com/2026/09/15/world/ai-doomsday-skeptics-sydney-sweeney.html"
+   },
+   {
+    "word": "hamper",
+    "url": "https://aiguide.substack.com/p/misleading-metaphors-and-real-risks"
+   }
+  ]
+ },
+ {
+  "section": "Regulatory Approaches",
+  "term": "Restricting AI Deployment",
+  "definition": "Some lawmakers are considering restrictions on how AI is deployed. We define restrictions on model deployment as legally binding actions taken by an independent authority to direct an AI developer to withhold an unreleased model from the public or a pre-vetted group of partners. This is distinct from the other legal consequences that AI developers might face when they fail to satisfy due diligence requirements prior to model release, such as civil penalties or criminal liability. We also address restrictions on models after release in separate categories (see e.g. Shutdown or “Kill Switch”).   \n\nLawmakers are also considering restrictions on applications of models or narrower forms of AI. These restrictions are either categorical (bills that would prohibit or ban AI use cases without exception) or conditional (the AI use case would be legal only if it meets certain requirements and/or under certain circumstances). For example, some bills to regulate autonomous weapons would categorically prohibit the use of AI to launch nuclear weapons. But they would permit its use in developing and fielding autonomous weapons provided certain conditions are met (e.g. that such use of AI preserves appropriate human judgment over the use of force).",
+  "links": [
+   {
+    "word": "pre-vetted group of partners",
+    "url": "https://www.brennancenter.org/our-work/research-reports/conversation-we-need-have-about-regulating-ai"
+   }
+  ]
+ },
+ {
+  "section": "Regulatory Approaches",
+  "term": "Transparency",
+  "definition": "Measures to compel the AI industry to disclose internal safety and security policies and their approaches to managing AI risk have become a standard component of legislative packages. This category includes both public disclosures and reporting to Congress. In the wake of the Hugging Face attack, there has also been an uptick in proposals to establish a system for reporting critical safety incidents to regulators.",
+  "links": []
+ },
+ {
+  "section": "Regulatory Approaches",
+  "term": "Liability",
+  "definition": "Some lawmakers have proposed updating existing laws or creating new ones to establish the conditions under which AI developers or users will be held liable for security incidents and other consumer harms involving their models or model applications. At least one lawmaker has suggested that an AI liability regime alone is sufficient incentive for the AI industry to build the technology safely and responsibly. But imposing liability for AI-enabled harms raises novel legal questions, such as how to ascribe intent and establish causation, that may take years to litigate and resolve.  In the meantime, such harms may proliferate unchecked. Liability regimes are also no substitute for ex ante standards and oversight, which address the root causes of irreparable harm before they occur.",
+  "links": []
+ },
+ {
+  "section": "Regulatory Approaches",
+  "term": "Preemption and Deregulation",
+  "definition": "We define deregulation as the removal or weakening of laws, regulations, or formally established rules, including those that would have imposed safety or security requirements on AI development and use. Deregulation does not mean that the government has withdrawn from AI governance altogether. For example, it may effectively concentrate the authority to regulate and release AI models within the executive branch, increasing the potential for abuse while simultaneously shrouding these decisions in secrecy.  \n\nA closely related trend is the preemption of state laws and regulations that seek to mitigate AI risk or protect their residents from AI harms. Preemption covers bills that would ban state AI regulation that is more protective than the proposed federal standard, or that would ban state AI regulation altogether. We include bills in this category that have vague preemption language, such as bills that would preempt state AI regulation that is “inconsistent” with the bill’s provisions. Anti-Preemption covers bills that would preserve the ability of states to pass and enforce AI regulation, including such regulation that is stronger than the proposed federal standard.  \n\nDeregulation covers bills to remove or weaken existing regulations on AI safety and security that are not preemption bills.",
+  "links": [
+   {
+    "word": "does not mean",
+    "url": "https://www.science.org/doi/10.1126/science.aee4900?referrer=https%3A%2F%2Fwww.science.org%2Fdoi%2F10.1126%2Fscience.aee4900%3Freferrer%3Dhttps%253A%252F%252Fwww.google.com%252F"
+   },
+   {
+    "word": "preemption",
+    "url": "https://www.brennancenter.org/our-work/analysis-opinion/congress-shouldnt-stop-states-regulating-ai-especially-no-alternative"
+   }
+  ]
+ },
+ {
+  "section": "Authorities",
+  "term": "Department of Commerce",
+  "definition": "Most lawmakers are looking to the Department of Commerce — and particularly the National Institute of Standards and Technology (NIST) and its sub-organization, the Center for Advancing Innovation and Standards for Super Intelligence (CAISSI) — to oversee the development and release of frontier models. There is considerable debate, however, about how NIST and CAISSI should share regulatory responsibilities and how these organizations should be insulated from overt political pressure and interference. Some lawmakers would create a separate office within the Department to administer AI oversight.",
+  "links": []
+ },
+ {
+  "section": "Authorities",
+  "term": "Department of Artificial Intelligence (New Agency)",
+  "definition": "Some lawmakers have suggested creating a new federal agency to administer AI regulation and oversight.",
+  "links": []
+ },
+ {
+  "section": "Authorities",
+  "term": "Department of Justice",
+  "definition": "At least one bill that would impose civil liability for AI harms authorizes the Attorney General as well as state Attorneys General to file suit against AI developers and users. Any bill that imposes criminal liability necessarily involves federal and/or state prosecutors.",
+  "links": []
+ },
+ {
+  "section": "Authorities",
+  "term": "Other Federal Agencies",
+  "definition": "Bills to regulate a particular AI domain or impact tend to delegate oversight and enforcement to the federal agency with expertise in that area. For example, a bill to safeguard consumer data in the training and operation of AI chatbots designates the Federal Trade Commission with oversight authority, while another bill directs the National Security Agency to work with the Commerce Department to administer the testing of frontier models for cybersecurity risk.",
+  "links": []
+ },
+ {
+  "section": "Authorities",
+  "term": "White House",
+  "definition": "Lawmakers favoring minimal AI regulation have looked to the White House to remove or roll back regulations, while others pushing for stronger AI regulation would rescind executive orders that conflict with this goal. Despite these differences, there is general and longstanding agreement that the White House should regulate and oversee AI adoption and use across federal agencies. In 2020, Congress directed the White House Office of Management and Budget (OMB) to establish standards that would promote innovative agency uses of AI while protecting civil liberties, civil rights, and economic and national security. In April 2025, OMB issued a pair of memoranda on using and acquiring AI across the federal government, replacing the 2024 guidance from the Biden administration.",
+  "links": [
+   {
+    "word": "directed",
+    "url": "https://www.congress.gov/116/plaws/publ260/PLAW-116publ260.pdf"
+   },
+   {
+    "word": "replacing",
+    "url": "https://www.lawfaremedia.org/article/narrowing-the-national-security-exception-to-federal-ai-guardrails"
+   }
+  ]
+ }
+];
+
+function esc(s) {
+  return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+// Wrap the first whole-word occurrence of each link word in an <a>, skipping overlaps
+function linkify(text, links) {
+  const spans = [];
+  for (const { word, url } of links) {
+    const re = new RegExp("(?<![\\w])" + word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?![\\w])");
+    const m = re.exec(text);
+    if (!m) continue;
+    const start = m.index, end = start + word.length;
+    if (spans.some(s => start < s.end && end > s.start)) continue;
+    spans.push({ start, end, url });
+  }
+  spans.sort((a, b) => a.start - b.start);
+  let out = "", pos = 0;
+  for (const s of spans) {
+    out += esc(text.slice(pos, s.start)) +
+      `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(text.slice(s.start, s.end))}</a>`;
+    pos = s.end;
+  }
+  return out + esc(text.slice(pos));
+}
+
+const wrap = document.querySelector(".defs");
+const sections = new Map();
+DATA.forEach((row, i) => {
+  if (!sections.has(row.section)) {
+    const el = document.createElement("div");
+    el.className = "section";
+    const h = document.createElement("h2");
+    h.textContent = row.section;
+    el.dataset.section = row.section;
+    el.appendChild(h);
+    wrap.appendChild(el);
+    sections.set(row.section, el);
+  }
+  // Links are placed per paragraph so a link word is matched in the paragraph where it first appears
+  const paras = row.definition.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+  const remaining = [...row.links];
+  const html = paras.map(p => {
+    const here = remaining.filter(l => new RegExp("(?<![\\w])" + l.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?![\\w])").test(p));
+    here.forEach(l => remaining.splice(remaining.indexOf(l), 1));
+    return `<p>${linkify(p, here)}</p>`;
+  }).join("");
+
+  const item = document.createElement("div");
+  item.className = "item";
+  item.innerHTML =
+    `<button class="term" type="button" aria-expanded="false" aria-controls="def-${i}"><span class="term-text">${esc(row.term)}</span></button>` +
+    `<div class="panel" id="def-${i}" role="region"><div class="panel-inner">${html}</div></div>`;
+  sections.get(row.section).appendChild(item);
+});
+
+// Opening one definition closes every other one on the page
+function setOpen(item) {
+  wrap.querySelectorAll(".item.open").forEach(o => {
+    if (o === item) return;
+    o.classList.remove("open");
+    o.querySelector(".term").setAttribute("aria-expanded", "false");
+  });
+  if (item) {
+    item.classList.add("open");
+    item.querySelector(".term").setAttribute("aria-expanded", "true");
+  }
+}
+
+wrap.addEventListener("click", e => {
+  const btn = e.target.closest(".term");
+  if (!btn) return;
+  const item = btn.parentElement;
+  setOpen(item.classList.contains("open") ? null : item);
+});
+
+// ---- Search: highlight every match, step through them, opening each one's definition ----
+const input = document.querySelector(".search");
+const prevBtn = document.querySelector(".step.prev");
+const nextBtn = document.querySelector(".step.next");
+const countEl = document.querySelector(".count");
+let hits = [];      // each hit is the list of <mark>s that make up one match
+let current = -1;
+
+// Curly quotes and dashes match their plain keyboard versions; any run of whitespace is one space
+const FOLD = { "\u2018": "'", "\u2019": "'", "\u201C": '"', "\u201D": '"', "\u2013": "-", "\u2014": "-" };
+const fold = c => (FOLD[c] || c).toLowerCase().charAt(0);
+const normQuery = q => [...q.trim().replace(/\s+/g, " ")].map(fold).join("");
+
+function clearMarks() {
+  wrap.querySelectorAll("mark").forEach(m => {
+    const parent = m.parentNode;
+    m.replaceWith(...m.childNodes);
+    parent.normalize();
+  });
+  hits = [];
+  current = -1;
+}
+
+// Find matches in one block (a term or a paragraph); a match may run across a link's edge
+function markIn(root, q) {
+  const nodes = [];
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  let text = "";
+  const map = [];   // map[k] = [node index, offset] for each character of text
+  nodes.forEach((n, ni) => {
+    const s = n.data;
+    for (let i = 0; i < s.length; i++) {
+      if (/\s/.test(s[i])) {
+        if (text.endsWith(" ")) continue;
+        text += " ";
+      } else {
+        text += fold(s[i]);
+      }
+      map.push([ni, i]);
+    }
+  });
+
+  const found = [];
+  for (let k = text.indexOf(q); k !== -1; k = text.indexOf(q, k + q.length)) found.push([k, k + q.length - 1]);
+  if (!found.length) return [];
+
+  // Turn each match into per-node pieces, then wrap pieces from the end of each node backwards
+  const pieces = [];   // [node index, start, end, match number]
+  found.forEach(([a, b], mi) => {
+    const [sn, so] = map[a], [en, eo] = map[b];
+    for (let ni = sn; ni <= en; ni++) {
+      const start = ni === sn ? so : 0;
+      const end = ni === en ? eo + 1 : nodes[ni].data.length;
+      if (end > start) pieces.push([ni, start, end, mi]);
+    }
+  });
+  const marks = found.map(() => []);
+  pieces.sort((x, y) => x[0] - y[0] || y[1] - x[1]).forEach(([ni, start, end, mi]) => {
+    const range = document.createRange();
+    range.setStart(nodes[ni], start);
+    range.setEnd(nodes[ni], end);
+    const m = document.createElement("mark");
+    range.surroundContents(m);
+    marks[mi].unshift(m);
+  });
+  return marks;
+}
+
+function runSearch() {
+  clearMarks();
+  const q = normQuery(input.value);
+  if (q) {
+    wrap.querySelectorAll(".term-text, .panel p").forEach(el => hits.push(...markIn(el, q)));
+  }
+  if (hits.length) go(0);
+  else updateStatus();
+}
+
+function updateStatus() {
+  const q = input.value.trim();
+  countEl.textContent = !q ? "" : hits.length ? `${current + 1} of ${hits.length}` : "No matches";
+  prevBtn.disabled = nextBtn.disabled = hits.length === 0;
+}
+
+function go(i) {
+  if (!hits.length) return;
+  if (current >= 0) hits[current].forEach(m => m.classList.remove("current"));
+  current = (i + hits.length) % hits.length;
+  const marks = hits[current];
+  marks.forEach(m => m.classList.add("current"));
+  const item = marks[0].closest(".item");
+  const inDefinition = !!marks[0].closest(".panel");
+  const wasOpen = item.classList.contains("open");
+  // A match in a term only needs the term in view; a match in a definition opens it
+  if (inDefinition) setOpen(item);
+  const reveal = () => marks[0].scrollIntoView({ block: "center", behavior: "smooth" });
+  // Wait for the slide-open (and any other definition closing) before scrolling to the match
+  const animating = inDefinition && !wasOpen && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (animating) setTimeout(reveal, 320);
+  else reveal();
+  updateStatus();
+}
+
+let timer;
+input.addEventListener("input", () => {
+  clearTimeout(timer);
+  timer = setTimeout(() => { timer = null; runSearch(); }, 200);
+});
+input.addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  // Enter right after typing: run the pending search first
+  if (timer) { clearTimeout(timer); timer = null; runSearch(); return; }
+  go(current + (e.shiftKey ? -1 : 1));
+});
+input.addEventListener("search", () => { if (!input.value) { clearTimeout(timer); runSearch(); } });
+prevBtn.addEventListener("click", () => go(current - 1));
+nextBtn.addEventListener("click", () => go(current + 1));
+</script>
+</body>
+</html>
