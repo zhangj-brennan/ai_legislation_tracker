@@ -25,12 +25,14 @@ body {
 }
 .wrap { max-width: 880px; margin: 0 auto; padding: 8px 16px; }
 p { margin: 0; }
+.updated { margin-top: 4px; font-size: 13px; color: #555; }
 strong { font-family: "BentonStrong", Helvetica, Arial, sans-serif; font-weight: normal; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <p>The tracker covers bills from the 119th Congress. In total, we analyzed <strong id="total">56</strong> bills. Of the bills examined, <strong id="passed">1</strong> <span id="verb">has</span> become law.</p>
+  <p class="updated" id="updated" hidden>Last data update: <span id="updated-date"></span></p>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -60,6 +62,15 @@ Papa.parse(CSV_FILE, {
     document.getElementById("total").textContent = bills.length;
     document.getElementById("passed").textContent = passed;
     document.getElementById("verb").textContent = passed === 1 ? "has" : "have";
+
+    // "Last updated" column: filled in by an Apps Script on every edit (first non-empty value wins)
+    const stamp = res.data.map(r => (r["Last updated"] || "").trim()).find(Boolean);
+    if (stamp) {
+      const d = new Date(stamp);
+      document.getElementById("updated-date").textContent = isNaN(d) ? stamp
+        : d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+      document.getElementById("updated").hidden = false;
+    }
   }
 });
 </script>
