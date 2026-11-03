@@ -285,6 +285,13 @@ td.codes .tag {
   letter-spacing: 0.02em;
   margin-bottom: 3px;
 }
+/* Filter buttons and the table's category names use each group's color from the definitions page; group labels stay black */
+.group-risk { --group-color: var(--red); }
+.group-regulation { --group-color: var(--orange); }
+.group-authority { --group-color: var(--purple); }
+.filter-group .filter-btn, .code-group .tag { color: var(--group-color, var(--black)); }
+/* Selected filters are yellow; their text goes black so orange and red stay readable on it */
+.filter-group .filter-btn[aria-pressed="true"] { color: var(--black); }
 
 details.cosponsors { margin-top: 6px; }
 mark { background: var(--yellow); color: inherit; padding: 0; }
@@ -394,8 +401,8 @@ html.scroll-locked body { overflow: hidden; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
-// First tab of the Google Sheet, exported as CSV (the sheet must be viewable by anyone with the link)
-const CSV_FILE = "https://docs.google.com/spreadsheets/d/1oFkdTpm-49pUpR-IZpgYjLU7Y1VOgCa6JG2QcWGCa9g/export?format=csv&gid=0";
+// The Google Sheet's first tab, published to the web as CSV (File > Share > Publish to web)
+const CSV_FILE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJoQFsoMo_qBx62RyvHGDRO9TjDcneKLAmK1SBpiIjNm1Mz36WGUuuXUtZiEy9KzKljqh7-UC8pbX_/pub?gid=0&single=true&output=csv";
 
 const COLUMNS = [
   { key: "Title", label: "Bill", cls: "title" },
@@ -438,9 +445,9 @@ function codeLabel(c) {
 }
 
 const CODE_GROUPS = [
-  { key: "Risk(s)", label: "Risk", match: /^R\d/ },
-  { key: "Regulation Type(s)", label: "Regulation", match: /^RG/ },
-  { key: "Authority", label: "Authority", match: /^A/ }
+  { key: "Risk(s)", label: "Risk", match: /^R\d/, cls: "group-risk" },
+  { key: "Regulation Type(s)", label: "Regulation", match: /^RG/, cls: "group-regulation" },
+  { key: "Authority", label: "Authority", match: /^A/, cls: "group-authority" }
 ];
 
 let rows = [];
@@ -466,6 +473,25 @@ function formatDate(iso) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+// "3/26/2025", "2025-03-26", or one line per chamber ("House - 3/20/2026") -> [{ chamber, iso }]
+function parseDates(s) {
+  return (s || "").split("\n").map(line => {
+    const m = line.trim().match(/^(?:(\w+)\s*[-–:]\s*)?(?:(\d{1,2})\/(\d{1,2})\/(\d{4})|(\d{4}-\d{2}-\d{2}))$/);
+    if (!m) return null;
+    const iso = m[5] || `${m[4]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+    return { chamber: m[1] || "", iso };
+  }).filter(Boolean);
+}
+
+// Readable date(s); text that isn't a date (e.g. "NOT ON CONGRESS.GOV YET") is shown as is
+function dateHtml(row) {
+  if (!row._dates.length) return esc(row["Date introduced"] || "");
+  if (row._dates.length === 1 && !row._dates[0].chamber) return formatDate(row._dates[0].iso);
+  return row._dates.map(d => `<div>${d.chamber ? esc(d.chamber) + ": " : ""}${formatDate(d.iso)}</div>`).join("");
+}
+
+const isUrl = u => /^https?:\/\//.test((u || "").trim());
+
 function codes(s) {
   return s.split(/[,;]/).map(x => x.trim()).filter(Boolean);
 }
@@ -474,15 +500,22 @@ function renderCell(col, row) {
   const v = row[col.key] || "";
   switch (col.key) {
     case "Title": {
-      if (!row.Link) return esc(v);
-      const link = text => `<a href="${esc(row.Link)}" target="_blank" rel="noopener">${esc(text)}</a>`;
-      // "Name (H.R.8031; see also S.4216)" -> only the first bill number is linked
-      const m = v.match(/^(.*?)\s*\(([^();]+)([^()]*)\)\s*$/);
-      if (!m) return link(v);
-      return `${esc(m[1])}<div class="bill-number">${link(m[2].trim())}${esc(m[3])}</div>`;
+      const link = (url, text) => isUrl(url)
+        ? `<a href="${esc(url.trim())}" target="_blank" rel="noopener">${esc(text)}</a>`
+        : esc(text);
+      // "Name (H.R.8031; S.4216)": the bill numbers come from Label 1/2, each linked to its own page
+      const name = v.replace(/\s*\([^()]*\)\s*$/, "");
+      const numbers = [1, 2]
+        .map(i => ({ label: (row[`Label ${i}`] || "").trim(), url: row[`Link ${i}`] || "" }))
+        .filter(n => n.label);
+      if (numbers.length) {
+        return `${esc(name)}<div class="bill-number">${numbers.map(n => link(n.url, n.label)).join("; ")}</div>`;
+      }
+      // No bill number yet: the title itself links to the bill text
+      return link(row["Link 1"] || "", v);
     }
     case "Date introduced":
-      return v ? formatDate(v) : "";
+      return dateHtml(row);
     case "Sponsor": {
       const names = (row["Co-sponsors"] || "").split("\n").map(x => x.trim()).filter(Boolean);
       const label = names.length === 1 ? "1 co-sponsor" : `${names.length} co-sponsors`;
@@ -495,7 +528,7 @@ function renderCell(col, row) {
         : "";
       // Mobile only: the date and a label sit at the top of this column (the Introduced column is hidden there)
       const date = row["Date introduced"]
-        ? `<div class="mobile-only code-label">Date introduced</div><div class="mobile-only mobile-date">${formatDate(row["Date introduced"])}</div>`
+        ? `<div class="mobile-only code-label">Date introduced</div><div class="mobile-only mobile-date">${dateHtml(row)}</div>`
         : "";
       return date + `<div class="mobile-only code-label">Sponsor / Co-sponsors</div>` + esc(v) + cosponsors + committee;
     }
@@ -504,7 +537,7 @@ function renderCell(col, row) {
         const list = codes(row[g.key] || "");
         if (!list.length) return "";
         const tags = list.map(c => `<span class="tag">${esc(codeLabel(c))}</span>`).join("");
-        return `<div class="code-group"><div class="code-label">${g.label}</div>${tags}</div>`;
+        return `<div class="code-group ${g.cls}"><div class="code-label">${g.label}</div>${tags}</div>`;
       }).join("");
     case "Bill summary": {
       const extra = (row._extraLinks || []).map(u => ` <a href="${esc(u)}" target="_blank" rel="noopener">Related document</a>`).join("");
@@ -529,7 +562,7 @@ function renderFilters() {
       const n = pool.filter(r => r._codes[g.key].has(c)).length;
       return `<button type="button" class="filter-btn" data-group="${esc(g.key)}" data-code="${esc(c)}" aria-pressed="${pressed}"${n || pressed ? "" : " disabled"}>${esc(CODE_LABELS[c])}<span class="n">(${n})</span></button>`;
     }).join("");
-    return `<div class="filter-group"><div class="code-label">${g.label}</div><div class="filter-buttons">${buttons}</div></div>`;
+    return `<div class="filter-group ${g.cls}"><div class="code-label">${g.label}</div><div class="filter-buttons">${buttons}</div></div>`;
   }).join("");
   clearBtn.hidden = !CODE_GROUPS.some(g => active[g.key].size);
 }
@@ -572,9 +605,10 @@ function matchesCodes(r, skipGroup) {
 function render() {
   let list = rows.filter(r => matchesSearch(r) && matchesCodes(r));
   renderFilters();
-  // ISO dates sort correctly as strings; bills without a date (e.g. "NOT ON CONGRESS.GOV YET") always go last
+  // Bills sort by their earliest date; ISO dates sort correctly as strings.
+  // Bills without a date (e.g. "NOT ON CONGRESS.GOV YET") always go last
   const dir = sortSelect.value === "asc" ? 1 : -1;
-  const date = r => /^\d{4}-\d{2}-\d{2}$/.test(r["Date introduced"] || "") ? r["Date introduced"] : null;
+  const date = r => r._dates.length ? r._dates.map(d => d.iso).sort()[0] : null;
   list = list.slice().sort((a, b) => {
     const da = date(a), db = date(b);
     if (!da || !db) return (da ? 0 : 1) - (db ? 0 : 1);
@@ -716,7 +750,7 @@ Papa.parse(CSV_FILE, {
         .filter(k => (!k || k.startsWith("_")) && /^https?:\/\//.test((r[k] || "").trim()))
         .map(k => r[k].trim());
       const codeSets = Object.fromEntries(CODE_GROUPS.map(g => [g.key, new Set(codes(r[g.key] || "").map(normCode))]));
-      return { ...r, _extraLinks: extra, _codes: codeSets };
+      return { ...r, _extraLinks: extra, _codes: codeSets, _dates: parseDates(r["Date introduced"]) };
     });
     rows.forEach(r => { r._text = rowText(r); });
     render();
