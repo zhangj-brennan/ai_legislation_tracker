@@ -196,11 +196,9 @@ h2 {
 .count { font-size: 13px; margin-left: 6px; }
 
 mark { background: var(--yellow); color: inherit; padding: 0; }
-mark.current {
-  box-shadow: 0 0 0 2px var(--black);
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-}
+
+/* Embedded: the host page sizes the iframe to fit, so there is never an inner scrollbar */
+html.embedded, html.embedded body { overflow: hidden; }
 
 </style>
 </head>
@@ -523,6 +521,7 @@ function setOpen(item) {
     item.classList.add("open");
     item.querySelector(".term").setAttribute("aria-expanded", "true");
   }
+  if (typeof reportHeight === "function") reportHeight();
 }
 
 wrap.addEventListener("click", e => {
@@ -531,6 +530,27 @@ wrap.addEventListener("click", e => {
   const item = btn.parentElement;
   setOpen(item.classList.contains("open") ? null : item);
 });
+
+// ---- Embedded in another page: report this page's height so the host can size the iframe to fit ----
+// (the host page's embed script listens for these messages; see the embed code)
+const embedded = window.self !== window.top;
+let reportHeight = () => {};
+if (embedded) {
+  document.documentElement.classList.add("embedded");
+  const page = document.querySelector(".wrap");
+  let lastHeight = 0;
+  reportHeight = () => {
+    const h = Math.ceil(page.getBoundingClientRect().height);
+    if (h === lastHeight) return;
+    lastHeight = h;
+    parent.postMessage({ type: "definitions-height", height: h }, "*");
+  };
+  // Fires on every frame of an accordion sliding open or shut, so the iframe grows and shrinks with it
+  new ResizeObserver(reportHeight).observe(page);
+  window.addEventListener("load", reportHeight);
+  // Backstops for browsers that are slow to deliver resize notifications
+  wrap.addEventListener("transitionend", reportHeight);
+}
 
 // ---- Search: highlight every match, step through them, opening each one's definition ----
 const input = document.querySelector(".search");
@@ -628,7 +648,15 @@ function go(i) {
   const wasOpen = item.classList.contains("open");
   // A match in a term only needs the term in view; a match in a definition opens it
   if (inDefinition) setOpen(item);
-  const reveal = () => marks[0].scrollIntoView({ block: "center", behavior: "smooth" });
+  const reveal = () => {
+    if (embedded) {
+      // The iframe doesn't scroll, so ask the host page to bring the match to the middle of the screen
+      const r = marks[0].getBoundingClientRect();
+      parent.postMessage({ type: "definitions-scroll", top: r.top + r.height / 2 }, "*");
+    } else {
+      marks[0].scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+  };
   // Wait for the slide-open (and any other definition closing) before scrolling to the match
   const animating = inDefinition && !wasOpen && !matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (animating) setTimeout(reveal, 320);
