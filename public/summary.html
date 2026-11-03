@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tracker Summary</title>
+<style>
+@font-face {
+  font-family: "Benton";
+  src: url("Benton Sans/Benton Sans Book.otf");
+}
+@font-face {
+  font-family: "BentonStrong";
+  src: url("Benton Sans/Benton Sans Bold.otf");
+}
+:root { --black: #000; --white: #fff; }
+* { box-sizing: border-box; }
+html, body { margin: 0; overflow: hidden; }
+body {
+  background: var(--white);
+  color: var(--black);
+  font-family: "Benton", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.wrap { max-width: 880px; margin: 0 auto; padding: 8px 16px; }
+p { margin: 0; }
+strong { font-family: "BentonStrong", Helvetica, Arial, sans-serif; font-weight: normal; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p>The tracker covers bills from the 119th Congress. In total, we analyzed <strong id="total">56</strong> bills. Of the bills examined, <strong id="passed">1</strong> <span id="verb">has</span> become law.</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+// Same published Google Sheet the tracker loads. The numbers in the HTML above are
+// fallbacks (as of 11/3/26) shown if the sheet can't be reached.
+const CSV_FILE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJoQFsoMo_qBx62RyvHGDRO9TjDcneKLAmK1SBpiIjNm1Mz36WGUuuXUtZiEy9KzKljqh7-UC8pbX_/pub?gid=0&single=true&output=csv";
+
+// Tell a host page how tall this embed is (message type "summary-height")
+const page = document.querySelector(".wrap");
+function reportHeight() {
+  if (window.self === window.top) return;
+  parent.postMessage({ type: "summary-height", height: Math.ceil(page.getBoundingClientRect().height) }, "*");
+}
+new ResizeObserver(reportHeight).observe(page);
+window.addEventListener("load", reportHeight);
+
+Papa.parse(CSV_FILE, {
+  download: true,
+  header: true,
+  skipEmptyLines: "greedy",
+  transformHeader: h => h.trim(),
+  complete: res => {
+    const bills = res.data.filter(r => (r["Title"] || "").trim());
+    if (!bills.length) return;
+    const passed = bills.filter(r => /^y/i.test((r["Passed?"] || "").trim())).length;
+    document.getElementById("total").textContent = bills.length;
+    document.getElementById("passed").textContent = passed;
+    document.getElementById("verb").textContent = passed === 1 ? "has" : "have";
+  }
+});
+</script>
+</body>
+</html>
