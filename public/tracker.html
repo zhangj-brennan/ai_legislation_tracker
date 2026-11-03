@@ -313,6 +313,14 @@ details ul {
 html.scroll-locked,
 html.scroll-locked body { overflow: hidden; }
 
+/* Embedded with the host script: the host sizes the iframe to fit, so nothing scrolls inside it.
+   The filters and table header are moved down by script to stay pinned while the host page scrolls. */
+html.host-sized,
+html.host-sized body { overflow: hidden; }
+html.host-sized .filter-sticky { position: relative; will-change: transform; }
+html.host-sized th { position: relative; top: 0; will-change: transform; }
+html.host-sized .filter-panel-inner { max-height: var(--host-vh-65, 65vh); }
+
 /* Mobile: each bill is two rows — bill (with categories), date, sponsor; then the summary */
 @media (max-width: 640px) {
   .filter-sticky h1 { margin-bottom: 8px; }
@@ -620,6 +628,8 @@ function render() {
     : `<tr><td class="empty" colspan="${COLUMNS.length}">No bills match your search and filters.</td></tr>`;
   renderHead();
   highlight(search.value.trim());
+  pinToHost();
+  reportHeight();
 }
 
 // Wrap each match of the search text in <mark>, splitting it across text nodes when it spans
@@ -675,6 +685,7 @@ function setFiltersOpen(open) {
   const n = (search.value.trim() ? 1 : 0) +
     CODE_GROUPS.reduce((sum, g) => sum + active[g.key].size, 0);
   filterToggle.textContent = open ? "Hide filters" : n ? `Show filters (${n})` : "Show filters";
+  if (typeof reportHeight === "function") { reportHeight(); pinToHost(); }
 }
 
 // Opening the panel shifts the page, and the browser may adjust the scroll position to match;
@@ -695,6 +706,7 @@ if (window.self !== window.top && "IntersectionObserver" in window) {
   probe.style.cssText = "position: fixed; inset: 0; pointer-events: none; visibility: hidden;";
   document.body.appendChild(probe);
   new IntersectionObserver(([entry]) => {
+    if (hostMode) return;
     document.documentElement.classList.toggle("scroll-locked", entry.intersectionRatio < 0.95);
   }, { threshold: [0, 0.25, 0.5, 0.75, 0.9, 0.95, 1] }).observe(probe);
 }
@@ -704,9 +716,9 @@ new ResizeObserver(() => {
   document.documentElement.style.setProperty("--sticky-h", filterSticky.offsetHeight + "px");
 }).observe(filterSticky);
 
+// y is how far the reader has scrolled into the tracker: this page's scroll, or the host page's when host-sized
 let lastY = window.scrollY;
-window.addEventListener("scroll", () => {
-  const y = window.scrollY;
+function handleScroll(y) {
   if (performance.now() < ignoreScrollUntil) { lastY = y; return; }
   // Wide screens: reopen the filters once the reader scrolls back up to the top
   if (wide.matches && y <= 0 && y < lastY && filterSticky.classList.contains("collapsed")) {
@@ -721,7 +733,59 @@ window.addEventListener("scroll", () => {
     setFiltersOpen(false);
   }
   lastY = y;
-}, { passive: true });
+}
+window.addEventListener("scroll", () => { if (!hostMode) handleScroll(window.scrollY); }, { passive: true });
+
+// ---- Host-sized embed ----
+// When the host page runs the tracker's embed script, it sends the iframe's position on every scroll.
+// The tracker then reports its full height (the host makes the iframe that tall, so there is no inner
+// scrolling to get stuck in) and moves the filters and table header down to keep them pinned on screen.
+// Without the script nothing changes: the iframe scrolls internally as before.
+let hostMode = false;
+let hostTop = 0;          // the iframe's top edge, relative to the host's viewport
+const pageEl = document.querySelector(".wrap");
+const tableEl = document.querySelector("table");
+
+function reportHeight() {
+  if (!hostMode) return;
+  parent.postMessage({ type: "tracker-height", height: Math.ceil(pageEl.getBoundingClientRect().height) }, "*");
+}
+
+function pinToHost() {
+  if (!hostMode) return;
+  const y = Math.max(0, -hostTop);   // how far the host has scrolled past the tracker's top
+  const stickyH = filterSticky.offsetHeight;
+  // Layout positions (this page never scrolls; transforms don't change offsetTop)
+  const filtersTop = filterSticky.offsetTop;
+  const headTop = tableEl.offsetTop + thead.offsetTop;
+  const headH = thead.offsetHeight;
+  const tableBottom = tableEl.offsetTop + tableEl.offsetHeight;
+  // Filters: pinned to the top edge of the screen, but never past the end of the table
+  const filterShift = Math.max(0, Math.min(y - filtersTop, tableBottom - stickyH - filtersTop));
+  filterSticky.style.transform = filterShift ? `translateY(${filterShift}px)` : "";
+  // Table header: just below the pinned filters, until the last row
+  const headShift = Math.max(0, Math.min(filtersTop + filterShift + stickyH - headTop, tableBottom - headH - headTop));
+  thead.querySelectorAll("th").forEach(th => { th.style.transform = headShift ? `translateY(${headShift}px)` : ""; });
+}
+
+window.addEventListener("message", e => {
+  if (e.source !== window.parent || !e.data || e.data.type !== "tracker-host") return;
+  if (!hostMode) {
+    hostMode = true;
+    document.documentElement.classList.remove("scroll-locked");
+    document.documentElement.classList.add("host-sized");
+    window.scrollTo(0, 0);
+    new ResizeObserver(() => { reportHeight(); pinToHost(); }).observe(pageEl);
+    filterSticky.addEventListener("transitionend", () => { reportHeight(); pinToHost(); });
+    reportHeight();
+  }
+  hostTop = e.data.top;
+  if (e.data.viewportHeight) {
+    document.documentElement.style.setProperty("--host-vh-65", Math.round(e.data.viewportHeight * 0.65) + "px");
+  }
+  pinToHost();
+  handleScroll(Math.max(0, -hostTop));
+});
 
 filterList.addEventListener("click", e => {
   const btn = e.target.closest(".filter-btn");
