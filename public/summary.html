@@ -32,7 +32,7 @@ strong { font-family: "BentonStrong", Helvetica, Arial, sans-serif; font-weight:
 <body>
 <div class="wrap">
   <p>The tracker covers bills from the 119th Congress. In total, we analyzed <strong id="total">56</strong> bills. Of the bills examined, <strong id="passed">1</strong> <span id="verb">has</span> become law.</p>
-  <p class="updated" id="updated" hidden>Last data update: <span id="updated-date"></span></p>
+  <p class="updated" id="updated" hidden>Last updated: <span id="updated-date"></span></p>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -63,10 +63,15 @@ Papa.parse(CSV_FILE, {
     document.getElementById("passed").textContent = passed;
     document.getElementById("verb").textContent = passed === 1 ? "has" : "have";
 
-    // "Last updated" column: filled in by an Apps Script on every edit (first non-empty value wins)
-    const stamp = res.data.map(r => (r["Last updated"] || "").trim()).find(Boolean);
+    // Column O ("Tracker Last Updated", cell O2). Matched loosely so header typos/renames
+    // don't break it; first non-empty value wins.
+    const fields = res.meta.fields || [];
+    const col = fields.find(f => /last\s*upd/i.test(f)) || fields[14];
+    const stamp = col && res.data.map(r => (r[col] || "").trim()).find(Boolean);
     if (stamp) {
-      const d = new Date(stamp);
+      // Parse M/D/YY or M/D/YYYY explicitly (browsers disagree on two-digit years)
+      const m = stamp.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/);
+      const d = m ? new Date(m[3].length === 2 ? 2000 + +m[3] : +m[3], m[1] - 1, +m[2]) : new Date(stamp);
       document.getElementById("updated-date").textContent = isNaN(d) ? stamp
         : d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
       document.getElementById("updated").hidden = false;

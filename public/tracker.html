@@ -55,6 +55,8 @@ h1 {
   border-top: 3px solid var(--black);
 }
 
+.updated { margin: -8px 0 12px; font-size: 13px; color: #555; }
+
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -324,6 +326,7 @@ html.host-sized .filter-panel-inner { max-height: var(--host-vh-65, 65vh); }
 /* Mobile: each bill is two rows — bill (with categories), date, sponsor; then the summary */
 @media (max-width: 640px) {
   .filter-sticky h1 { margin-bottom: 8px; }
+  .filter-sticky .updated { margin: -4px 0 8px; }
   table, tbody { display: block; }
   thead { display: none; }
   table { min-width: 0; }
@@ -370,6 +373,7 @@ html.host-sized .filter-panel-inner { max-height: var(--host-vh-65, 65vh); }
 <div class="wrap">
   <div class="filter-sticky">
   <h1>Artificial Intelligence Legislation Tracker</h1>
+  <p class="updated" id="updated" hidden>Last updated: <span id="updated-date"></span></p>
 
   <div class="filter-panel">
   <div class="filter-panel-inner">
@@ -802,6 +806,21 @@ clearBtn.addEventListener("click", () => {
   render();
 });
 
+// Column O ("Tracker Last Updated", cell O2) shown under the title. Matched loosely so
+// header renames don't break it; first non-empty value wins. Same logic as summary.html.
+function showUpdated(res) {
+  const fields = res.meta.fields || [];
+  const col = fields.find(f => /last\s*upd/i.test(f)) || fields[14];
+  const stamp = col && res.data.map(r => (r[col] || "").trim()).find(Boolean);
+  if (!stamp) return;
+  // Parse M/D/YY or M/D/YYYY explicitly (browsers disagree on two-digit years)
+  const m = stamp.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/);
+  const d = m ? new Date(m[3].length === 2 ? 2000 + +m[3] : +m[3], m[1] - 1, +m[2]) : new Date(stamp);
+  document.getElementById("updated-date").textContent = isNaN(d) ? stamp
+    : d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  document.getElementById("updated").hidden = false;
+}
+
 Papa.parse(CSV_FILE, {
   download: true,
   header: true,
@@ -817,6 +836,7 @@ Papa.parse(CSV_FILE, {
       return { ...r, _extraLinks: extra, _codes: codeSets, _dates: parseDates(r["Date introduced"]) };
     });
     rows.forEach(r => { r._text = rowText(r); });
+    showUpdated(res);
     render();
   },
   error: () => {
