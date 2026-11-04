@@ -752,7 +752,14 @@ window.addEventListener("scroll", () => { if (!hostMode) handleScroll(window.scr
 // scrolling to get stuck in) and moves the filters and table header down to keep them pinned on screen.
 // Without the script nothing changes: the iframe scrolls internally as before.
 let hostMode = false;
-let hostTop = 0;          // the iframe's top edge, relative to the host's viewport
+let hostTop = 0;          // the iframe's top edge, relative to the host's viewport (minus hostOffset)
+// Space at the top of the host's screen covered by its own fixed header, e.g. tracker.html?offset=2.75rem
+// (rem counts as 16px; px or a bare number also work). The host script may also send it as `offset` (px).
+// Pinned filters stop below it instead of sliding under it.
+const hostOffset = (() => {
+  const m = (new URLSearchParams(location.search).get("offset") || "").trim().match(/^(\d*\.?\d+)\s*(rem|em|px)?$/i);
+  return m ? parseFloat(m[1]) * (/r?em/i.test(m[2] || "") ? 16 : 1) : 0;
+})();
 const pageEl = document.querySelector(".wrap");
 const tableEl = document.querySelector("table");
 
@@ -800,9 +807,10 @@ window.addEventListener("message", e => {
     filterSticky.addEventListener("transitionend", () => { reportHeight(); pinToHost(); });
     reportHeight();
   }
-  hostTop = e.data.top;
+  const offset = typeof e.data.offset === "number" ? e.data.offset : hostOffset;
+  hostTop = e.data.top - offset;
   if (e.data.viewportHeight) {
-    document.documentElement.style.setProperty("--host-vh-65", Math.round(e.data.viewportHeight * 0.65) + "px");
+    document.documentElement.style.setProperty("--host-vh-65", Math.round((e.data.viewportHeight - offset) * 0.65) + "px");
   }
   pinToHost();
   handleScroll(Math.max(0, -hostTop));
