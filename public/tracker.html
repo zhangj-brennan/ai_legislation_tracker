@@ -701,13 +701,19 @@ filterToggle.addEventListener("click", () => {
   setFiltersOpen(filterSticky.classList.contains("collapsed"));
 });
 
-// Embedded in another page: lock scrolling until the iframe is (almost) fully in view.
+// Embedded in another page: lock scrolling until the iframe's top part is in view.
 // While locked, wheel and touch scrolling pass through to the host page, which brings the
-// tracker up to the top of the screen first. A fixed, invisible probe covers the iframe's
-// viewport; its visible fraction (measured against the host's viewport) is how much of the iframe shows.
+// tracker up the screen first. A fixed, invisible probe covers the top of the iframe's viewport,
+// no taller than ~70% of the device screen, so it can fit on screen even when the iframe is taller
+// than the host's window (a full-viewport probe could then never be 95% visible and never unlock).
 if (window.self !== window.top && "IntersectionObserver" in window) {
   const probe = document.createElement("div");
-  probe.style.cssText = "position: fixed; inset: 0; pointer-events: none; visibility: hidden;";
+  const sizeProbe = () => {
+    const h = Math.min(window.innerHeight, Math.round((screen.availHeight || window.innerHeight) * 0.7));
+    probe.style.cssText = `position: fixed; top: 0; left: 0; right: 0; height: ${h}px; pointer-events: none; visibility: hidden;`;
+  };
+  sizeProbe();
+  window.addEventListener("resize", sizeProbe);
   document.body.appendChild(probe);
   new IntersectionObserver(([entry]) => {
     if (hostMode) return;
@@ -770,6 +776,17 @@ function pinToHost() {
   // Table header: just below the pinned filters, until the last row
   const headShift = Math.max(0, Math.min(filtersTop + filterShift + stickyH - headTop, tableBottom - headH - headTop));
   thead.querySelectorAll("th").forEach(th => { th.style.transform = headShift ? `translateY(${headShift}px)` : ""; });
+}
+
+// Announce the tracker's height to the host until its embed script answers, so a script that
+// loads after the iframe (and missed its load event) still sizes it without waiting for a scroll.
+// Pages without the script ignore these messages. Stops after ~30s.
+if (window.self !== window.top) {
+  let tries = 0;
+  const announce = setInterval(() => {
+    if (hostMode || ++tries > 30) return clearInterval(announce);
+    parent.postMessage({ type: "tracker-height", height: Math.ceil(pageEl.getBoundingClientRect().height) }, "*");
+  }, 1000);
 }
 
 window.addEventListener("message", e => {
